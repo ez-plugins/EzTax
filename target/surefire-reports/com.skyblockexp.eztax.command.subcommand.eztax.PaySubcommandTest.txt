@@ -1,0 +1,27 @@
+-------------------------------------------------------------------------------
+Test set: com.skyblockexp.eztax.command.subcommand.eztax.PaySubcommandTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.007 s <<< FAILURE! - in com.skyblockexp.eztax.command.subcommand.eztax.PaySubcommandTest
+com.skyblockexp.eztax.command.subcommand.eztax.PaySubcommandTest.target_with_no_taxes_does_not_invoke_pay  Time elapsed: 0.003 s  <<< ERROR!
+java.lang.Error: 
+Unresolved compilation problems: 
+	Syntax error on token(s), misplaced construct(s)
+	The import org.mockbukkit.MockBukkit cannot be resolved
+	The import org.mockbukkit.ServerMock cannot be resolved
+	The import org.mockbukkit.entity cannot be resolved
+	Syntax error on token(s), misplaced construct(s)
+	The import org.mockbukkit.MockBukkit cannot be resolved
+	The import org.mockbukkit.ServerMock cannot be resolved
+	The import org.mockbukkit.entity cannot be resolved
+	The type PaySubcommandTest is already defined
+	Syntax error on token(s), misplaced construct(s)
+	The type PaySubcommandTest is already defined
+	The type PaySubcommandTest is already defined
+
+	at com.skyblockexp.eztax.command.subcommand.eztax.PaySubcommandTest.<init>(PaySubcommandTest.java:1)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

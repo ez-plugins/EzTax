@@ -1,0 +1,81 @@
+name: EzTax
+version: ${project.version}
+main: com.skyblockexp.eztax.EzTaxPlugin
+api-version: 1.13
+description: Economy taxation and inflation control plugin.
+softdepend: [Vault, EzEconomy]
+
+commands:
+  eztax:
+    description: "EzTax main command (alias: /tax)"
+    usage: /eztax <help|stats|sinks|reload|runwealthtax|settaxrate|transactiontax|exempt|unexempt|exemptions>
+    usage: /eztax <help|stats|sinks|reload|runwealthtax|runtaxpayment|settaxrate|transactiontax|exempt|unexempt|exemptions|check|pay|payfine|show|fines>
+    permission: eztax.command.use
+    aliases: [tax]
+  exempt:
+    description: Exempt player from taxes (admin)
+    usage: /exempt <player>
+    permission: eztax.command.exempt
+  transactiontax:
+    description: Configure transaction tax (admin)
+    usage: /transactiontax <view|setpercent|setmin|enable|disable>
+    permission: eztax.command.transactiontax.view
+
+permissions:
+  eztax.command.use:
+    description: Allows using the /eztax command (basic help usage).
+    default: true
+  eztax.command.stats:
+    description: Allows viewing EzTax statistics.
+    default: op
+  eztax.command.sinks:
+    description: Allows viewing EzTax sinks.
+    default: op
+  eztax.command.reload:
+    description: Allows reloading EzTax configuration.
+    default: op
+  eztax.command.runwealthtax:
+    description: Allows triggering wealth tax runs.
+    default: op
+  eztax.command.runtaxpayment:
+    description: Allows triggering tax payment runs.
+    default: op
+  eztax.command.settaxrate:
+    description: Allows setting tax rates.
+    default: op
+  eztax.command.transactiontax.view:
+    description: Allows viewing transaction tax configuration.
+    default: op
+  eztax.command.transactiontax.manage:
+    description: Allows modifying transaction tax configuration.
+    default: op
+  eztax.command.exempt:
+    description: Allows exempting players from taxes.
+    default: op
+  eztax.command.unexempt:
+    description: Allows removing exemptions from players.
+    default: op
+  eztax.command.exemptions:
+    description: Allows listing exempt players.
+    default: op
+  eztax.command.paytax:
+    description: Allows paying outstanding taxes.
+    default: true
+  eztax.command.paytax.others:
+    description: Allows paying taxes on behalf of other players.
+    default: op
+  eztax.command.payfine:
+    description: Allows paying outstanding fines.
+    default: true
+  eztax.command.showtax:
+    description: Allows showing detailed tax information.
+    default: true
+  eztax.command.showfines:
+    description: Allows showing detailed fines information.
+    default: true
+  eztax.command.check:
+    description: Allows previewing your next tax amounts with /eztax check.
+    default: true
+  eztax.command.config:
+    description: Allows opening the admin configuration GUI.
+    default: op

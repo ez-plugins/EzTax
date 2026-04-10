@@ -1,0 +1,138 @@
+[CENTER][SIZE=6][B]EzTax[/B][/SIZE]
+[SIZE=3]Modern, configurable tax system for Vault-based Minecraft economies[/SIZE]
+[SIZE=2]Bukkit, Spigot, Paper, or Purpur 1.7–1.21.x • Java 8+ • Vault required • Integrates with [URL='https://modrinth.com/plugin/ezeconomy']EzEconomy[/URL] and any Vault provider[/SIZE][/CENTER]
+
+Get support through [URL='https://discord.gg/yWP95XfmBS']the EzPlugins Discord server[/URL].
+
+[SIZE=4][B]Why EzTax?[/B][/SIZE]
+[LIST]
+[*][B]Transaction Taxes[/B] – Deducts a configurable percentage or flat fee from deposits, withdrawals, and payments
+[*][B]Wealth Tax[/B] – Periodically taxes players above a configurable balance threshold
+[*][B]Progressive Tax[/B] – Realistic, tiered tax brackets (like real-world tax systems)
+[*][B]Group-Based Taxation[/B] – Apply different tax rates based on player groups or permissions
+[*][B]Player Exemptions[/B] – Exempt specific players from taxation
+[*][B]Inactivity Fees[/B] – Optionally tax players who are inactive for a set number of days
+[*][B]Death Fees[/B] – Charge a percentage of balance on player death (configurable worlds/exemptions)
+[*][B]Treasury Support[/B] – Route collected taxes to a server account or sink
+[*][B]Stats & Sinks[/B] – View total tax collected and breakdown by type with /eztax stats and /eztax sinks
+[*][B]Reloadable Config[/B] – Change tax settings and reload instantly with /eztax reload
+[*][B]Full Vault Compatibility[/B] – Works with any Vault-based economy, but [URL='https://modrinth.com/plugin/ezeconomy']EzEconomy[/URL] is recommended for best results
+[/LIST]
+
+[SIZE=4][B]Requirements[/B][/SIZE]
+[LIST]
+[*]Java 8 or newer
+[*]Bukkit, Spigot, Paper, or Purpur server (Minecraft 1.7–1.21.x)
+[*]Vault
+[*]A Vault-compatible economy plugin ([URL='https://modrinth.com/plugin/ezeconomy']EzEconomy[/URL] recommended)
+[/LIST]
+
+[SIZE=4][B]Commands[/B][/SIZE]
+[LIST]
+[*][B]/eztax stats[/B] – View total tax collected
+[*][B]/eztax sinks[/B] – View breakdown by tax type
+[*][B]/eztax reload[/B] – Reload config (admin)
+[*][B]/eztax check[/B] – Preview your next tax amount (player)
+[*][B]/eztax runwealthtax[/B] – Manually trigger a wealth tax run for all players (admin/testing)
+[/LIST]
+
+
+[*][B]Permissions[/B]
+[LIST]
+[*]eztax.stats – View tax stats and sinks
+[*]eztax.command.reload – Reload config and run admin commands
+[*]eztax.command.runwealthtax – Manually trigger wealth tax runs
+[*]eztax.command.runtaxpayment – Run pending tax payments
+[*]eztax.command.settaxrate – Set global or group tax rates
+[*]eztax.command.transactiontax.view – View transaction tax status
+[*]eztax.command.transactiontax.manage – Manage transaction tax settings
+[*]eztax.command.exempt – Exempt a player from taxes
+[*]eztax.command.unexempt – Remove player exemption
+[*]eztax.command.exemptions – List exempt players
+[/LIST]
+
+[SIZE=4][B]Configuration Highlights[/B][/SIZE]
+[LIST]
+[*]Enable/disable each tax type
+[*]Set transaction tax percent/minimum or progressive brackets
+[*]Configure wealth tax threshold, percent, interval, or progressive brackets
+[*]Set group-based tax rates and player exemptions
+[*]Set inactivity fee days, flat fee, and percent
+[*]Death fee percent, max loss, and world exemptions
+[*]Treasury account for tax collection
+[*]Debug mode for troubleshooting
+[/LIST]
+
+[SIZE=4][B]Progressive Tax Example[/B][/SIZE]
+[CODE=yaml]
+# Example: Progressive brackets for wealth tax
+wealth-tax:
+  enabled: true
+  threshold: 10000
+  interval: WEEKLY
+  brackets:
+    - threshold: 0
+      rate: 0.05   # 5% for first $10,000
+    - threshold: 10000
+      rate: 0.10   # 10% for next $40,000
+    - threshold: 50000
+      rate: 0.15   # 15% for amounts above $50,000
+[/CODE]
+
+[CODE=yaml]
+# Example: Flat transaction tax (legacy/compatible)
+transaction-tax:
+  enabled: true
+  percentage: 2.5
+  minimum-fee: 100
+[/CODE]
+
+[CODE=yaml]
+# Example: Progressive transaction tax
+transaction-tax:
+  enabled: true
+  brackets:
+    - threshold: 0
+      rate: 0.01   # 1% for first $5,000
+    - threshold: 5000
+      rate: 0.03   # 3% for next $20,000
+    - threshold: 25000
+      rate: 0.05   # 5% for amounts above $25,000
+[/CODE]
+
+[SIZE=4][B]Integration[/B][/SIZE]
+[LIST]
+[*][B]EzEconomy[/B] – [URL='https://modrinth.com/plugin/ezeconomy'][B]Modern Vault Economy Plugin[/B][/URL]
+[*]Works with any Vault provider
+[*]PlaceholderAPI support via your economy plugin (e.g. EzEconomy)
+[/LIST]
+
+[SIZE=4][B]FAQ[/B][/SIZE]
+[LIST]
+[*][B]Q: Does EzTax require EzEconomy?[/B]
+[LIST]
+[*]A: No, but EzEconomy is recommended for best compatibility and features.
+[/LIST]
+[*][B]Q: Can I disable certain taxes?[/B]
+[LIST]
+[*]A: Yes, all tax types are configurable in the config file.
+[/LIST]
+[*][B]Q: Where do taxes go?[/B]
+[LIST]
+[*]A: Taxes can be routed to a server account or simply removed from the economy (sink).
+[/LIST]
+[*][B]Q: Does it support PlaceholderAPI?[/B]
+[LIST]
+[*]A: Yes, via your Vault economy plugin (EzEconomy provides placeholders).
+[/LIST]
+[/LIST]
+
+[SIZE=4][B]Related Plugins[/B][/SIZE]
+[LIST]
+[*][URL='https://modrinth.com/plugin/ezeconomy'][B]EzEconomy – Modern Vault Economy Plugin[/B][/URL]
+[*][URL='https://modrinth.com/plugin/ezauction'][B]EzAuction – Buy Orders, Advanced GUI, Shop Price[/B][/URL]
+[*][URL='https://modrinth.com/plugin/ezshops'][B]EzShops – Dynamic Shops, Player Shops, Sell Hand/Inv[/B][/URL]
+[/LIST]
+
+[COLOR=rgb(136, 136, 136)][SIZE=4]Developed by Shadow48402 | EzPlugins
+Discord: [URL]https://discord.gg/yWP95XfmBS[/URL][/SIZE][/COLOR]

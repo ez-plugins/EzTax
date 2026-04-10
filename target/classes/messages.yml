@@ -1,0 +1,68 @@
+# EzTax Messages configuration
+# Supports MiniMessage (https://docs.advntr.dev/minimessage/) and legacy color codes (&a, &c, etc)
+# Placeholders: <player>, <amount>, <tax>, <type>, <reason>, etc. See documentation for all available.
+
+prefix: '<gray>[EzTax]</gray> '
+
+no-permission: '<red>You do not have permission to use this command.</red>'
+reloaded: '<green>EzTax configuration reloaded.</green>'
+wealth-tax-running: '<yellow>Running wealth tax for all players...</yellow>'
+no-economy: '<yellow>Vault economy not detected; taxes remain disabled.</yellow>'
+stats-header: '<gold>EzTax Totals:</gold>'
+stats-line: '<gray><type>: <yellow><amount></yellow></gray>'
+sinks-header: '<gold>EzTax Sinks:</gold>'
+sinks-line: '<gray><type>: <yellow><amount></yellow></gray>'
+transaction-tax: '<red>Transaction tax: <yellow><tax></yellow></red>'
+wealth-tax: '<red>Wealth tax applied: <yellow><tax></yellow></red>'
+wealth-tax-manual: '<green>Wealth tax triggered for <count> players.</green>'
+inactivity-fee: '<red>Inactivity fee: <yellow><tax></yellow></red>'
+death-fee: '<red>Death fee: <yellow><tax></yellow></red>'
+treasury-received: '<green>Treasury received: <yellow><amount></yellow></green>'
+no-players: '<yellow>No players found to process wealth tax.</yellow>'
+
+# New command messages
+help-header: '<gold>EzTax Commands:</gold>'
+help-line: '<gray><command> - <description></gray>'
+settaxrate-usage: '<red>Usage: /eztax settaxrate <rate> [group]</red>'
+settaxrate-success: '<green>Tax rate set to <rate>% for <target>.</green>'
+invalid-rate: '<red>Invalid rate. Please provide a valid number.</red>'
+exempt-usage: '<red>Usage: /eztax exempt <player></red>'
+exempt-success: '<green>Player <player> is now exempt from all taxes.</green>'
+already-exempt: '<yellow>Player <player> is already exempt.</yellow>'
+unexempt-usage: '<red>Usage: /eztax unexempt <player></red>'
+unexempt-success: '<green>Removed tax exemption for player <player>.</green>'
+not-exempt: '<yellow>Player <player> is not exempt.</yellow>'
+player-not-found: '<red>Player <player> not found.</red>'
+exemptions-header: '<gold>Tax Exemptions (<count>):</gold>'
+exemptions-line: '<gray>- <player></gray>'
+no-exemptions: '<yellow>No players are currently exempt from taxes.</yellow>'
+transactiontax-status: '<green>Transaction tax status:</green>'
+transactiontax-setpercent-usage: '<red>Usage: /eztax transactiontax setpercent <percent></red>'
+transactiontax-setpercent-success: '<green>Transaction tax percentage set to <percent>%.</green>'
+transactiontax-setmin-usage: '<red>Usage: /eztax transactiontax setmin <amount></red>'
+transactiontax-setmin-success: '<green>Transaction tax minimum fee set to <minimum>.</green>'
+transactiontax-enabled: '<green>Transaction tax enabled.</green>'
+transactiontax-disabled: '<yellow>Transaction tax disabled.</yellow>'
+transactiontax-unknown: '<red>Unknown transactiontax subcommand.</red>'
+
+# Payment and inspection
+no-taxes-due: '<yellow>No taxes are due for this player.</yellow>'
+no-fines-due: '<yellow>No fines are due for this player.</yellow>'
+paytax-success: '<green>Paid taxes: <amount></green>'
+paytax-failed: '<red>Failed to pay taxes for <player>. Check server logs.</red>'
+payfine-success: '<green>Paid fines: <amount></green>'
+payfine-failed: '<red>Failed to pay fines for <player>. Check server logs.</red>'
+showtax-header: '<gold>Tax Details:</gold>'
+showtax-line: '<gray><type>: <yellow><amount></yellow></gray>'
+showfines-header: '<gold>Fines Details:</gold>'
+showfines-line: '<gray><type>: <yellow><amount></yellow></gray>'
+
+# GUI labels (used via gui.yml with msg: keys)
+gui.menu.tax.title: '<gold>EzTax - Tax Overview</gold>'
+gui.menu.pay.title: '<gold>EzTax - Pay Tax</gold>'
+gui.menu.playerselection.title: '<gold>Select Player</gold>'
+
+gui.pay.target-none: '<gray>Target: <yellow>none</yellow></gray>'
+gui.pay.target-format: '<gray>Target: <yellow><target></yellow></gray>'
+gui.pay.amount-format: '<gray>Amount: <yellow><amount></yellow></gray>'
+gui.pay.confirm: '<green>Confirm</green>'
