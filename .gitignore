@@ -1,0 +1,78 @@
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+*.swp
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Build directories
+target/
+build/
+
+# Generated sources
+generated-sources/
+generated-test-sources/
+
+# Maven specific
+/dependency-reduced-pom.xml
+/release.properties
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/pom.xml.next
+buildNumber*
+
+# Surefire / Failsafe test reports
+surefire-reports/
+failsafe-reports/
+
+# IDEs and editors
+.idea/
+*.iml
+*.iws
+/.vscode/
+.project
+.classpath
+.settings/
+out/
+
+# NetBeans
+nbproject/private/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment / secrets
+.env
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+
+# Database files
+*.db
+*.mv.db
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# ignore target output packaged config files
+/target/config.yml
+/target/gui.yml
+
