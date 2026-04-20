@@ -1,49 +1,60 @@
+---
+title: Death Fee
+nav_order: 4
+parent: Tax Types
+description: "Configuration for EzTax death fee"
+---
+
 # Death Fee
+{: .no_toc }
 
-Overview
-- Death fees charge a percentage of a player's balance on death. Useful for adding risk and a sink tied to PvE/PvP events.
+## Table of contents
+{: .no_toc .text-delta }
 
-Configuration
-- `death-fee.enabled` (boolean)
-- `death-fee.percentage` (double) - percentage taken on death
-- `death-fee.max-loss` (double) - cap on the maximum amount a player can lose on death
-- `death-fee.disabled-worlds` (list) - worlds where the death fee is not applied
+1. TOC
+{:toc}
 
-Example
-```yaml
-death-fee:
-	enabled: true
-	percentage: 1.0    # 1% of balance on death
-	max-loss: 1000.0   # never lose more than this amount
-	disabled-worlds:
-		- hub
-		- lobby
-# Death Fee
+---
 
-Summary
-- Charges a percentage of a player's balance when they die. Use to add risk or as an economic sink tied to deaths.
+## Overview
 
-Quick config
+The death fee charges a percentage of a player's balance when they die. Use it to add
+economic risk to PvE and PvP events, or simply as a sink tied to death events.
+`max-loss` caps the absolute amount so one unlucky death never wipes a player's entire
+bank account.
+
+---
+
+## Configuration
+
 ```yaml
 death-fee:
   enabled: true
-  percentage: 1.0    # 1% of balance on death
-  max-loss: 1000.0   # never lose more than this amount
+  percentage: 0.5     # 0.5% of balance on death
+  max-loss: 5000.0    # never lose more than 5000 in one death
   disabled-worlds:
     - hub
     - lobby
+    - arena
 ```
 
-Options
-- `enabled` (boolean): toggle death fee.
-- `percentage` (double): percent of balance taken on death.
-- `max-loss` (double): cap the absolute loss to prevent extreme penalties.
-- `disabled-worlds` (list): world names where fee is ignored.
+---
 
-Behavior
-- Registered listener applies fee on player death events; worlds in `disabled-worlds` are ignored by the listener.
-- Amounts are recorded to the `DEATH` sink for stats and persistence.
+## Options
 
-Tips
-- Use `max-loss` to prevent grief from large balance losses.
-- Consider disabling in safe hubs or lobby worlds in `disabled-worlds`.
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `enabled` | boolean | `false` | Enable or disable the death fee |
+| `percentage` | double | `0.5` | Percentage of current balance charged on death |
+| `max-loss` | double | `5000` | Hard cap on loss per death (set to `0` to disable cap) |
+| `disabled-worlds` | list | `[]` | World names where the death fee is never applied |
+
+---
+
+## Tips
+
+- Always set a `max-loss` to prevent extreme penalties in high-risk areas.
+- List safe worlds like `hub` and `lobby` in `disabled-worlds`.
+- Players with `eztax.exempt` are immune to the death fee.
+- Combine with the `burn` [sink destination](../config/tax-sink.md) to create a true death-as-loss-of-wealth mechanic.
+

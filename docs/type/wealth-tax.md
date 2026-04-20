@@ -1,65 +1,90 @@
+---
+title: Wealth Tax
+nav_order: 2
+parent: Tax Types
+description: "Configuration for EzTax wealth tax"
+---
+
 # Wealth Tax
+{: .no_toc }
 
-Overview
-- Wealth tax is applied periodically to players based on their balance/wealth. It can be a flat percentage or configured with progressive brackets.
+## Table of contents
+{: .no_toc .text-delta }
 
-Configuration
-- `wealth-tax.enabled` (boolean)
-- `wealth-tax.threshold` (double) - minimum wealth before tax applies
-- `wealth-tax.percent` (double) - default percentage applied when brackets are not used
-- `wealth-tax.interval` (string) - frequency of wealth tax runs (e.g., `DAILY`, `WEEKLY` depending on implementation)
-- `wealth-tax.brackets` (list) - optional progressive brackets: entries with `limit` and `percent`
-- `wealth-tax.flat-fee` (double) - optional flat fee amount (if configured)
+1. TOC
+{:toc}
 
-Example (flat)
+---
+
+## Overview
+
+Wealth tax is applied periodically to all online players whose balance exceeds a configured
+threshold. Supports both a simple flat-percentage model and progressive tax brackets for
+tiered taxation.
+
+The scheduled run frequency is controlled by `interval` (`DAILY` or `WEEKLY`).
+
+---
+
+## Configuration
+
+### Flat rate
+
 ```yaml
 wealth-tax:
-	enabled: true
-	threshold: 1000.0
-	percent: 1.0        # 1% of balance above threshold
-	# Wealth Tax
+  enabled: true
+  threshold: 250000   # minimum balance before tax applies
+  percentage: 2.0     # 2% of taxable balance
+  interval: DAILY
+```
 
-	Summary
-	- Periodic tax on player balances. Supports a simple flat percent model or progressive brackets for tiered taxation.
+### Progressive brackets
 
-	Quick config (flat)
-	```yaml
-	wealth-tax:
-	  enabled: true
-	  threshold: 1000.0
-	  percent: 1.0        # 1% of balance above threshold
-	  interval: weekly
-	  flat-fee: 0.0
-	```
+```yaml
+wealth-tax:
+  enabled: true
+  threshold: 250000
+  percentage: 3.0     # applied to amounts above the highest bracket
+  interval: DAILY
+  brackets:
+    low:
+      limit: 500000   # applies to taxable amounts up to 500 000
+      percent: 1.0
+    mid:
+      limit: 1000000  # applies to taxable amounts 500 000–1 000 000
+      percent: 2.0
+    # amounts above 1 000 000 are taxed at the global percentage (3.0%)
+```
 
-	Quick config (progressive)
-	```yaml
-	wealth-tax:
-	  enabled: true
-	  interval: weekly
-	  brackets:
-	    - limit: 10000.0
-	      percent: 0.5
-	    - limit: 50000.0
-	      percent: 1.0
-	    - limit: 999999999.0
-	      percent: 2.0
-	```
+---
 
-	Options
-	- `enabled` (boolean): enable periodic wealth tax.
-	- `threshold` (double): minimum balance before taxation applies (flat model).
-	- `percent` (double): flat percentage applied to taxable balance.
-	- `interval` (string): schedule for runs (see plugin scheduling options).
-	- `brackets` (list): ordered brackets with `limit` and `percent` for progressive taxation.
-	- `flat-fee` (double): optional fixed amount charged instead or in addition.
+## Options
 
-	Commands
-	- `/eztax runwealthtax` — manually trigger the wealth tax run (admin).
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `enabled` | boolean | `false` | Enable periodic wealth tax |
+| `threshold` | double | `250000` | Minimum balance before the tax kicks in |
+| `percentage` | double | `2.0` | Flat percentage applied to taxable balance (amount above threshold) |
+| `interval` | string | `DAILY` | Schedule: `DAILY` or `WEEKLY` |
+| `brackets.<name>.limit` | double | — | Upper bound for this bracket |
+| `brackets.<name>.percent` | double | — | Rate applied to amounts within this bracket |
 
-	Tips
-	- Use brackets for fine-grained control of high-balance players.
-	- Test on a staging server to confirm bracket math and thresholds before enabling on live.
+---
 
-	Where it's recorded
-	- Totals are recorded to the `WEALTH` sink for reporting and persisted by storage providers.
+## Group overrides
+
+```yaml
+group-taxes:
+  groups:
+    vip:
+      wealth-tax: 1.0   # VIP players pay only 1%
+```
+
+---
+
+## Tips
+
+- Brackets are sorted by `limit` ascending at startup; order in the YAML does not matter.
+- To test bracket math without waiting for the schedule, use `/tax runwealthtax`.
+- Set `threshold` high enough that new players are never charged on their starter balance.
+
