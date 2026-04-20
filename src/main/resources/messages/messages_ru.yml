@@ -26,3 +26,12 @@ tax-reminder: '<yellow>Напоминание: Вы должны <gold>{amount}<
 tax-late: '<red>Уведомление о просрочке: У вас задолженность по налогам на сумму <gold>{amount}</gold>! Пожалуйста, оплатите как можно скорее, чтобы избежать дополнительных штрафов.</red>'
 tax-payment-running: '<yellow>Выполняется обработка оплаты налогов для всех игроков...</yellow>'
 tax-payment-manual: '<green>Оплата налогов вручную запущена для <yellow>{count}</yellow> игроков.</green>'
+
+# Налоговая история
+history-header: '<gold>━━━ Налоговая история: <white>{player}</white> ━━━</gold>'
+history-summary: '<gray>Всего списано: <yellow>{total}</yellow>  |  Член с: <white>{member_since}</white>  |  Последний вход: <white>{last_seen}</white></gray>'
+history-empty: '<gray>Налоговая история для этого игрока не записана.</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(баланс: <white>{balance_before}</white>)</gray>'
+history-footer: '<gray>Страница <white>{page}</white>/<white>{total_pages}</white>  (всего <white>{total_events}</white> событий)</gray>'
+history-no-database: '<red>Налоговая история требует MySQL-хранилище. YAML-хранилище не записывает отдельные события.</red>'
+history-specify-player: '<red>Использование: /eztax history {player} [страница]</red>'

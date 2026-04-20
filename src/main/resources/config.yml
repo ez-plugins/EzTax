@@ -63,6 +63,17 @@ death-fee:
 server-treasury:
   enabled: true
 
+# Where collected tax money is routed after being withdrawn from the player.
+# Destinations:
+#   burn        — money is destroyed (deflates the economy, the default)
+#   player      — money is deposited into a specific player's account (set target-player)
+#   pool        — money is split equally among all currently online players
+#   command     — a console command is executed; use %amount% as a placeholder for the collected amount
+tax-sink:
+  destination: burn
+  target-player: ""   # player name; used when destination=player
+  command: ""         # console command; used when destination=command (e.g. "give %player% diamond 1")
+
 # Storage configuration for persisted statistics (default: YML)
 storage:
   type: yml    # supported: yml, mysql

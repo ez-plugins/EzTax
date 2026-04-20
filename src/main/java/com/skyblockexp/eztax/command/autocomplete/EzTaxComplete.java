@@ -23,6 +23,7 @@ public class EzTaxComplete implements Autocomplete {
             if (sender.hasPermission("eztax.command.exempt")) res.add("exempt");
             if (sender.hasPermission("eztax.command.unexempt")) res.add("unexempt");
             if (sender.hasPermission("eztax.command.exemptions")) res.add("exemptions");
+            if (sender.hasPermission("eztax.command.history") || sender.hasPermission("eztax.command.history.others")) res.add("history");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("transactiontax")) {
                 if (sender.hasPermission("eztax.command.transactiontax.manage")) {

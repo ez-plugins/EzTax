@@ -37,7 +37,7 @@ public class TaxFeatureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists(), "stats.yml should exist after transactions");
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001, "Recorded transaction tax should match calculated tax");
 
         double balance = econ.getBalance(player);
@@ -64,7 +64,7 @@ public class TaxFeatureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001, "Recorded transaction tax should equal the minimum fee");
 
         double expectedBalance = 50.0 - withdrawAmount - expectedTax;
@@ -90,7 +90,7 @@ public class TaxFeatureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.WEALTH", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_wealth", 0.0);
         assertTrue(recorded > 0.0, "Wealth tax should be recorded in stats");
 
         double balance = econ.getBalance(player);

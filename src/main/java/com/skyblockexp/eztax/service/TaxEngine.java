@@ -2,10 +2,13 @@ package com.skyblockexp.eztax.service;
 
 import com.skyblockexp.eztax.config.TaxConfig;
 import com.skyblockexp.eztax.economy.VaultHook;
+import com.skyblockexp.eztax.repository.TaxHistoryRepository;
+import com.skyblockexp.eztax.repository.TrackedPlayerRepository;
 import com.skyblockexp.eztax.service.TaxSink;
 import java.util.UUID;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -21,6 +24,8 @@ public class TaxEngine {
     private Economy economy;
     private final Logger logger;
     private ExemptionService exemptionService;
+    private TaxHistoryRepository taxHistoryRepository;
+    private TrackedPlayerRepository trackedPlayerRepository;
         // --- Missing method stubs for compilation ---
 
         public void handleTaxPayment(org.bukkit.OfflinePlayer player) {
@@ -152,6 +157,14 @@ public class TaxEngine {
     
     public void setExemptionService(ExemptionService exemptionService) {
         this.exemptionService = exemptionService;
+    }
+
+    public void setTaxHistoryRepository(TaxHistoryRepository taxHistoryRepository) {
+        this.taxHistoryRepository = taxHistoryRepository;
+    }
+
+    public void setTrackedPlayerRepository(TrackedPlayerRepository trackedPlayerRepository) {
+        this.trackedPlayerRepository = trackedPlayerRepository;
     }
 
     public Economy getEconomy() {
@@ -375,7 +388,77 @@ public class TaxEngine {
         }
         logger.info(String.format(Locale.US, "Recording sink %s amount=%.2f", sink.name(), amount));
         statsService.recordTax(sink, amount);
+        if (taxHistoryRepository != null) {
+            try {
+                taxHistoryRepository.record(player.getUniqueId(), player.getName(), sink, amount, balance);
+            } catch (Exception e) {
+                logger.warning("[EzTax] Failed to record tax history: " + e.getMessage());
+            }
+        }
+        if (trackedPlayerRepository != null) {
+            try {
+                trackedPlayerRepository.upsert(player.getUniqueId(), player.getName(), amount);
+            } catch (Exception e) {
+                logger.warning("[EzTax] Failed to update tracked player: " + e.getMessage());
+            }
+        }
+        distributeTax(amount);
         debug(String.format(Locale.US, "%s tax applied to %s: %.2f", sink.name(), player.getUniqueId(), amount));
+    }
+
+    /**
+     * Route the collected {@code amount} to the configured {@link SinkDestination}.
+     *
+     * <ul>
+     *   <li>{@code burn}    — money is already removed; nothing extra happens.</li>
+     *   <li>{@code player}  — money is deposited into the named player's account.</li>
+     *   <li>{@code pool}    — money is split equally among all currently online players.</li>
+     *   <li>{@code command} — a console command is executed with {@code %amount%} replaced.</li>
+     * </ul>
+     */
+    private void distributeTax(double amount) {
+        if (amount <= 0) {
+            return;
+        }
+        SinkDestination dest = SinkDestination.fromString(config.getSinkDestination());
+        switch (dest) {
+            case BURN:
+                // Money is already withdrawn; nothing else to do.
+                break;
+            case PLAYER: {
+                String name = config.getSinkTargetPlayer();
+                if (name != null && !name.isEmpty()) {
+                    @SuppressWarnings("deprecation")
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(name);
+                    economy.depositPlayer(target, amount);
+                    debug(String.format(Locale.US, "Tax sink PLAYER: deposited %.2f to %s", amount, name));
+                }
+                break;
+            }
+            case POOL: {
+                java.util.Collection<? extends Player> online = Bukkit.getOnlinePlayers();
+                if (!online.isEmpty()) {
+                    double share = roundCurrency(amount / online.size());
+                    for (Player p : online) {
+                        economy.depositPlayer(p, share);
+                    }
+                    debug(String.format(Locale.US, "Tax sink POOL: distributed %.2f across %d players (%.2f each)",
+                            amount, online.size(), share));
+                }
+                break;
+            }
+            case COMMAND: {
+                String cmd = config.getSinkCommand();
+                if (cmd != null && !cmd.isEmpty()) {
+                    String formatted = cmd.replace("%amount%", String.format(Locale.US, "%.2f", amount));
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formatted);
+                    debug(String.format(Locale.US, "Tax sink COMMAND: executed '%s'", formatted));
+                }
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     private double roundCurrency(double amount) {

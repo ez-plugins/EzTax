@@ -26,3 +26,12 @@ tax-reminder: '<yellow>提醒：你需要支付 <gold>{amount}</gold> 税款。<
 tax-late: '<red>逾期通知：你有总计 <gold>{amount}</gold> 的逾期税款！请尽快支付以避免更多罚款。</red>'
 tax-payment-running: '<yellow>正在为所有玩家处理税款支付...</yellow>'
 tax-payment-manual: '<green>已为 <yellow>{count}</yellow> 名玩家手动触发税款支付。</green>'
+
+# 税务历史
+history-header: '<gold>━━━ 税务历史：<white>{player}</white> ━━━</gold>'
+history-summary: '<gray>总征税额：<yellow>{total}</yellow>  |  加入日期：<white>{member_since}</white>  |  最后在线：<white>{last_seen}</white></gray>'
+history-empty: '<gray>该玩家没有税务历史记录。</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(余额：<white>{balance_before}</white>)</gray>'
+history-footer: '<gray>第 <white>{page}</white>/<white>{total_pages}</white> 页  (共 <white>{total_events}</white> 条记录)</gray>'
+history-no-database: '<red>税务历史需要 MySQL 存储。YAML 存储不记录单个事件。</red>'
+history-specify-player: '<red>用法：/eztax history {player} [页码]</red>'

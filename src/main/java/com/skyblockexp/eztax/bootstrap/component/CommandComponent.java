@@ -3,6 +3,8 @@ package com.skyblockexp.eztax.bootstrap.component;
 import com.skyblockexp.eztax.bootstrap.Component;
 import com.skyblockexp.eztax.EzTaxPlugin;
 import com.skyblockexp.eztax.registry.CommandRegistry;
+import com.skyblockexp.eztax.repository.TaxHistoryRepository;
+import com.skyblockexp.eztax.repository.TrackedPlayerRepository;
 
 public class CommandComponent implements Component {
     private final EzTaxPlugin plugin;
@@ -12,8 +14,10 @@ public class CommandComponent implements Component {
     private final com.skyblockexp.eztax.economy.VaultHook vaultHook;
     private final com.skyblockexp.eztax.config.Messages messages;
     private final com.skyblockexp.eztax.service.ExemptionService exemptionService;
+    private final TaxHistoryRepository taxHistoryRepository;
+    private final TrackedPlayerRepository trackedPlayerRepository;
 
-    public CommandComponent(EzTaxPlugin plugin, com.skyblockexp.eztax.config.TaxConfig taxConfig, com.skyblockexp.eztax.service.StatsService statsService, com.skyblockexp.eztax.service.TaxEngine taxEngine, com.skyblockexp.eztax.economy.VaultHook vaultHook, com.skyblockexp.eztax.config.Messages messages, com.skyblockexp.eztax.service.ExemptionService exemptionService) {
+    public CommandComponent(EzTaxPlugin plugin, com.skyblockexp.eztax.config.TaxConfig taxConfig, com.skyblockexp.eztax.service.StatsService statsService, com.skyblockexp.eztax.service.TaxEngine taxEngine, com.skyblockexp.eztax.economy.VaultHook vaultHook, com.skyblockexp.eztax.config.Messages messages, com.skyblockexp.eztax.service.ExemptionService exemptionService, TaxHistoryRepository taxHistoryRepository, TrackedPlayerRepository trackedPlayerRepository) {
         this.plugin = plugin;
         this.taxConfig = taxConfig;
         this.statsService = statsService;
@@ -21,12 +25,14 @@ public class CommandComponent implements Component {
         this.vaultHook = vaultHook;
         this.messages = messages;
         this.exemptionService = exemptionService;
+        this.taxHistoryRepository = taxHistoryRepository;
+        this.trackedPlayerRepository = trackedPlayerRepository;
     }
 
     @Override
     public void start() {
         // Create main executor and set executor/tab completer for primary commands
-        com.skyblockexp.eztax.command.execute.EzTaxExecute executor = new com.skyblockexp.eztax.command.execute.EzTaxExecute(plugin, taxConfig, statsService, taxEngine, vaultHook, messages, exemptionService);
+        com.skyblockexp.eztax.command.execute.EzTaxExecute executor = new com.skyblockexp.eztax.command.execute.EzTaxExecute(plugin, taxConfig, statsService, taxEngine, vaultHook, messages, exemptionService, taxHistoryRepository, trackedPlayerRepository);
         org.bukkit.command.PluginCommand cmd = plugin.getCommand("eztax");
         if (cmd != null) {
             cmd.setExecutor(executor);

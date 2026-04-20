@@ -26,3 +26,12 @@ tax-reminder: '<yellow>Recordatorio: Debes <gold>{amount}</gold> en impuestos. <
 tax-late: '<red>Aviso de retraso: ¡Tienes impuestos atrasados por un total de <gold>{amount}</gold>! Por favor, paga lo antes posible para evitar más sanciones.</red>'
 tax-payment-running: '<yellow>Procesando el pago de impuestos para todos los jugadores...</yellow>'
 tax-payment-manual: '<green>Pago de impuestos activado para <yellow>{count}</yellow> jugadores.</green>'
+
+# Historial de impuestos
+history-header: '<gold>━━━ Historial de impuestos: <white>{player}</white> ━━━</gold>'
+history-summary: '<gray>Total gravado: <yellow>{total}</yellow>  |  Miembro desde: <white>{member_since}</white>  |  Última vez visto: <white>{last_seen}</white></gray>'
+history-empty: '<gray>No hay historial de impuestos registrado para este jugador.</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(saldo: <white>{balance_before}</white>)</gray>'
+history-footer: '<gray>Página <white>{page}</white>/<white>{total_pages}</white>  (<white>{total_events}</white> eventos en total)</gray>'
+history-no-database: '<red>El historial de impuestos requiere almacenamiento MySQL. El almacenamiento YAML no registra eventos individuales.</red>'
+history-specify-player: '<red>Uso: /eztax history {player} [página]</red>'

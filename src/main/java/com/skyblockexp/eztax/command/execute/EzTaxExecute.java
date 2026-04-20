@@ -26,6 +26,9 @@ import com.skyblockexp.eztax.command.subcommand.eztax.SinksSubcommand;
 import com.skyblockexp.eztax.command.subcommand.exempt.ExemptSubcommand;
 import com.skyblockexp.eztax.command.subcommand.exempt.UnexemptSubcommand;
 import com.skyblockexp.eztax.command.subcommand.exempt.ExemptionsSubcommand;
+import com.skyblockexp.eztax.command.subcommand.eztax.HistorySubcommand;
+import com.skyblockexp.eztax.repository.TaxHistoryRepository;
+import com.skyblockexp.eztax.repository.TrackedPlayerRepository;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -43,11 +46,13 @@ public class EzTaxExecute extends com.skyblockexp.eztax.command.CmdExecutor {
     private final Messages messages;
     private final MessageManager messageManager;
     private final ExemptionService exemptionService;
+    private final TaxHistoryRepository taxHistoryRepository;
+    private final TrackedPlayerRepository trackedPlayerRepository;
 
     private final SetTaxRateExecute setTaxRateCmd;
     private final TransactionTaxExecute transactionTaxCmd;
 
-    public EzTaxExecute(EzTaxPlugin plugin, TaxConfig config, StatsService statsService, TaxEngine taxEngine, VaultHook vaultHook, Messages messages, ExemptionService exemptionService) {
+    public EzTaxExecute(EzTaxPlugin plugin, TaxConfig config, StatsService statsService, TaxEngine taxEngine, VaultHook vaultHook, Messages messages, ExemptionService exemptionService, TaxHistoryRepository taxHistoryRepository, TrackedPlayerRepository trackedPlayerRepository) {
         this.plugin = plugin;
         this.config = config;
         this.statsService = statsService;
@@ -56,6 +61,8 @@ public class EzTaxExecute extends com.skyblockexp.eztax.command.CmdExecutor {
         this.messages = messages;
         this.messageManager = new MessageManager(plugin, messages);
         this.exemptionService = exemptionService;
+        this.taxHistoryRepository = taxHistoryRepository;
+        this.trackedPlayerRepository = trackedPlayerRepository;
 
         this.setTaxRateCmd = new SetTaxRateExecute(plugin, config, messages);
         this.transactionTaxCmd = new TransactionTaxExecute(plugin, config, messages);
@@ -96,6 +103,7 @@ public class EzTaxExecute extends com.skyblockexp.eztax.command.CmdExecutor {
         registerSubcommand("exempt", new ExemptSubcommand(plugin, exemptionService, messages));
         registerSubcommand("unexempt", new UnexemptSubcommand(plugin, exemptionService, messages));
         registerSubcommand("exemptions", new ExemptionsSubcommand(plugin, exemptionService, messages));
+        registerSubcommand("history", new HistorySubcommand(plugin, taxEngine, taxHistoryRepository, trackedPlayerRepository, messages));
 
         registerAutocomplete("", new EzTaxComplete());
         registerAutocomplete("exempt", new ExemptComplete());

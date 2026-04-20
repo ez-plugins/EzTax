@@ -45,6 +45,11 @@ public class TaxConfig {
 
     private boolean treasuryEnabled;
 
+    // Sink destination
+    private String sinkDestination;
+    private String sinkTargetPlayer;
+    private String sinkCommand;
+
     // Storage configuration
     private String storageType; // yml | mysql
     private String storageFile; // filename for YML provider
@@ -126,6 +131,11 @@ public class TaxConfig {
         }
 
         this.treasuryEnabled = config.getBoolean("server-treasury.enabled", true);
+
+        // Sink destination
+        this.sinkDestination = config.getString("tax-sink.destination", "burn").toLowerCase();
+        this.sinkTargetPlayer = config.getString("tax-sink.target-player", "");
+        this.sinkCommand = config.getString("tax-sink.command", "");
 
         // Storage configuration
         this.storageType = config.getString("storage.type", "yml").toLowerCase();
@@ -294,6 +304,10 @@ public class TaxConfig {
     public String getMysqlUser() { return mysqlUser; }
     public String getMysqlPassword() { return mysqlPassword; }
     public String getMysqlTable() { return mysqlTable; }
+
+    public String getSinkDestination() { return sinkDestination; }
+    public String getSinkTargetPlayer() { return sinkTargetPlayer; }
+    public String getSinkCommand() { return sinkCommand; }
 
     public static class GroupTaxRates {
         private final double transactionTax;

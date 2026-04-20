@@ -57,6 +57,15 @@ showtax-line: '<gray><type>: <yellow><amount></yellow></gray>'
 showfines-header: '<gold>Fines Details:</gold>'
 showfines-line: '<gray><type>: <yellow><amount></yellow></gray>'
 
+# Tax history
+history-header: '<gold>━━━ Tax History: <white><player></white> ━━━</gold>'
+history-summary: '<gray>Total taxed: <yellow><total></yellow>  |  Member since: <white><member_since></white>  |  Last seen: <white><last_seen></white></gray>'
+history-empty: '<gray>No tax history recorded for this player.</gray>'
+history-entry: '<dark_gray>[<white><date></white>] <yellow><type></yellow> <red>-<amount></red> <gray>(bal: <white><balance_before></white>)</gray>'
+history-footer: '<gray>Page <white><page></white>/<white><total_pages></white>  (<white><total_events></white> events total)  — use <white>/eztax history [player] <page+1></white> for next</gray>'
+history-no-database: '<red>Tax history requires database (MySQL) storage. YAML storage does not record per-event history.</red>'
+history-specify-player: '<red>Usage: /eztax history <player> [page]</red>'
+
 # GUI labels (used via gui.yml with msg: keys)
 gui.menu.tax.title: '<gold>EzTax - Tax Overview</gold>'
 gui.menu.pay.title: '<gold>EzTax - Pay Tax</gold>'
