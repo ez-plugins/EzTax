@@ -32,8 +32,8 @@ jobs:
         run: |
           if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
             git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout d245e0a
-            mvn install -B -DskipTests -q
+            cd /tmp/MockBukkit && git checkout dev/26.1
+            mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
           fi
 
       - name: Run tests with coverage
@@ -74,8 +74,8 @@ jobs:
         run: |
           if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
             git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout d245e0a
-            mvn install -B -DskipTests -q
+            cd /tmp/MockBukkit && git checkout dev/26.1
+            mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
           fi
 
       - name: Run feature tests
