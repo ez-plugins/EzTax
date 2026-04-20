@@ -28,11 +28,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Clone and install MockBukkit (dev-d245e0a)
+      - name: Clone and install MockBukkit (dev/26.1.1)
         run: |
           if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
             git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout dev/26.1
+            cd /tmp/MockBukkit && git checkout dev/26.1.1
             mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
           fi
 
@@ -70,11 +70,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-feature-
 
-      - name: Clone and install MockBukkit (dev-d245e0a)
+      - name: Clone and install MockBukkit (dev/26.1.1)
         run: |
           if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
             git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout dev/26.1
+            cd /tmp/MockBukkit && git checkout dev/26.1.1
             mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
           fi
 
