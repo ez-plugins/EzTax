@@ -2,7 +2,6 @@ package com.skyblockexp.eztax.economy;
 
 import com.skyblockexp.eztax.config.TaxConfig;
 import com.skyblockexp.eztax.service.TaxEngine;
-import com.skyblockexp.eztax.economy.InternalEconomy;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.entity.Player;
@@ -23,22 +22,32 @@ public class VaultHook {
 
     public boolean hook() {
         RegisteredServiceProvider<Economy> registration = plugin.getServer().getServicesManager().getRegistration(Economy.class);
-        if (plugin.getServer().getPluginManager().getPlugin("Vault") != null && registration != null && registration.getProvider() != null) {
+        if (registration != null && registration.getProvider() != null) {
             this.economy = registration.getProvider();
-            plugin.getLogger().info("Using Vault economy provider: " + economy.getName());
+            plugin.getLogger().info("Economy: " + economy.getName() + " via Vault");
         } else {
-            plugin.getLogger().warning("Vault or Vault economy provider not found. Falling back to internal economy.");
-            this.economy = new InternalEconomy(plugin);
-            plugin.getLogger().info("Using internal EzTax economy provider: " + economy.getName());
+            plugin.getLogger().severe("╔══════════════════════════════════════════════════════╗");
+            plugin.getLogger().severe("║         EzTax could not find a Vault economy!        ║");
+            plugin.getLogger().severe("║                                                      ║");
+            plugin.getLogger().severe("║  Vault is required for EzTax to function.            ║");
+            plugin.getLogger().severe("║  Download it at: https://www.spigotmc.org/resources/ ║");
+            plugin.getLogger().severe("║                          vault.34315/                ║");
+            plugin.getLogger().severe("║                                                      ║");
+            plugin.getLogger().severe("║  You also need a Vault-compatible economy plugin,    ║");
+            plugin.getLogger().severe("║  such as EzEconomy, EssentialsX, or CMI.             ║");
+            plugin.getLogger().severe("║                                                      ║");
+            plugin.getLogger().severe("║  EzTax will run in standby mode until resolved.      ║");
+            plugin.getLogger().severe("╚══════════════════════════════════════════════════════╝");
+            return false;
         }
         
         // Try to hook permission system for group support
         RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager().getRegistration(Permission.class);
         if (permissionProvider != null && permissionProvider.getProvider() != null) {
             this.permission = permissionProvider.getProvider();
-            plugin.getLogger().info("Using Vault permission provider: " + permission.getName());
+            plugin.getLogger().info("Permissions: " + permission.getName() + " via Vault");
         } else {
-            plugin.getLogger().info("No Vault permission provider found. Group-based taxes will not be available.");
+            plugin.getLogger().info("Permissions: none found — group taxes unavailable.");
         }
         
         return true;
@@ -87,7 +96,7 @@ public class VaultHook {
             this.taxedEconomy.setTaxEngine(taxEngine);
             taxEngine.setEconomy(this.economy);
         }
-        plugin.getLogger().info("EzTax registered an economy wrapper for transaction taxes.");
+        plugin.getLogger().info("Transaction taxes: economy wrapper active.");
     }
 
     public void unregisterTaxedEconomy() {
@@ -96,6 +105,6 @@ public class VaultHook {
         }
         plugin.getServer().getServicesManager().unregister(Economy.class, taxedEconomy);
         registered = false;
-        plugin.getLogger().info("EzTax unregistered its Vault economy wrapper.");
+        plugin.getLogger().info("Transaction taxes: economy wrapper removed.");
     }
 }

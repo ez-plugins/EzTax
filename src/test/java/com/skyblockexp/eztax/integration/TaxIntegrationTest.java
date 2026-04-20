@@ -33,7 +33,7 @@ public class TaxIntegrationTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists(), "stats.yml should exist after transactions");
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001, "Transaction tax recorded should equal calculated tax");
 
         // Verify player's balance reduced by withdraw + exact tax
@@ -67,7 +67,7 @@ public class TaxIntegrationTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.WEALTH", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_wealth", 0.0);
         assertTrue(recorded > 0.0, "Wealth tax should be recorded in stats");
 
         // Balance should be reduced

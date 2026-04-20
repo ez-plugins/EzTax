@@ -42,7 +42,7 @@ public class PayCommandCaptureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001);
     }
 
@@ -73,7 +73,7 @@ public class PayCommandCaptureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001);
     }
 
@@ -142,7 +142,7 @@ public class PayCommandCaptureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001);
     }
 
@@ -189,7 +189,7 @@ public class PayCommandCaptureTest extends AbstractEzTaxTest {
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double recorded = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double recorded = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         assertEquals(expectedTax, recorded, 0.001);
     }
 }

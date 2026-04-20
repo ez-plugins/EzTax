@@ -34,8 +34,8 @@ public class TaxEdgeFeatureTest extends com.skyblockexp.eztax.test.AbstractEzTax
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double tx = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
-        double wealth = stats.getDouble("totals.sinks.WEALTH", 0.0);
+        double tx = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
+        double wealth = stats.getDouble("eztax_stats.stats.sink_wealth", 0.0);
         assertEquals(0.0, tx, 0.001, "Transaction tax should not be recorded for exempt player");
         assertEquals(0.0, wealth, 0.001, "Wealth tax should not be recorded for exempt player");
     }
@@ -55,7 +55,7 @@ public class TaxEdgeFeatureTest extends com.skyblockexp.eztax.test.AbstractEzTax
         // stats file may or may not exist; if exists, ensure no transaction recorded
         if (statsFile.exists()) {
             FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-            double tx = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+            double tx = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
             assertEquals(0.0, tx, 0.001, "No transaction tax should be recorded when withdraw fails");
         }
     }
@@ -73,7 +73,7 @@ public class TaxEdgeFeatureTest extends com.skyblockexp.eztax.test.AbstractEzTax
         File statsFile = new File(plugin.getDataFolder(), "stats.yml");
         assertTrue(statsFile.exists());
         FileConfiguration stats = YamlConfiguration.loadConfiguration(statsFile);
-        double tx = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double tx = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         // with deposit-tax disabled, recorded should be zero (or unchanged)
         assertEquals(0.0, tx, 0.001);
 
@@ -92,7 +92,7 @@ public class TaxEdgeFeatureTest extends com.skyblockexp.eztax.test.AbstractEzTax
 
         econ.depositPlayer(player, depositAmount);
         stats = YamlConfiguration.loadConfiguration(statsFile);
-        double tx2 = stats.getDouble("totals.sinks.TRANSACTION", 0.0);
+        double tx2 = stats.getDouble("eztax_stats.stats.sink_transaction", 0.0);
         // only the second deposit should have produced a tax entry
         assertEquals(expectedTax, tx2, 0.001, "Deposit tax should equal calculated tax when enabled");
 

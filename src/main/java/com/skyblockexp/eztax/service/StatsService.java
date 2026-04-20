@@ -1,10 +1,10 @@
 package com.skyblockexp.eztax.service;
 
 import com.skyblockexp.eztax.config.TaxConfig;
-import com.skyblockexp.eztax.repository.ProviderStatsRepository;
+import com.skyblockexp.eztax.repository.JaloquentStatsRepository;
 import com.skyblockexp.eztax.repository.StatsRepository;
+import com.skyblockexp.eztax.storage.BukkitYamlDataStore;
 import com.skyblockexp.eztax.storage.StatsData;
-import com.skyblockexp.eztax.storage.YamlStorageProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -37,13 +37,14 @@ public class StatsService {
     private LocalDate weeklyResetDate;
 
     /**
-     * Backward-compatible constructor (uses YML provider + repository).
+     * Default constructor — YAML-backed via Jaloquent ({@link BukkitYamlDataStore}).
      */
     public StatsService(JavaPlugin plugin, TaxConfig config) {
         this.plugin = plugin;
         this.config = config;
         this.statsFile = new File(plugin.getDataFolder(), "stats.yml");
-        this.repository = new ProviderStatsRepository(new YamlStorageProvider(statsFile));
+        BukkitYamlDataStore store = new BukkitYamlDataStore(statsFile, plugin.getLogger());
+        this.repository = new JaloquentStatsRepository(store, "eztax_stats");
         load();
     }
 
