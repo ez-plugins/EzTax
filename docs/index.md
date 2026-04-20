@@ -1,4 +1,5 @@
 ---
+layout: home
 title: EzTax Documentation
 nav_order: 1
 description: "EzTax — Vault economy taxation and inflation control for Paper servers"
