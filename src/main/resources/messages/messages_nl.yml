@@ -26,3 +26,12 @@ tax-reminder: '<yellow>Herinnering: Je moet <gold>{amount}</gold> aan belasting 
 tax-late: '<red>Laatste waarschuwing: Je hebt achterstallige belastingen van in totaal <gold>{amount}</gold>! Betaal zo snel mogelijk om verdere boetes te voorkomen.</red>'
 tax-payment-running: '<yellow>Belastingbetaling wordt verwerkt voor alle spelers...</yellow>'
 tax-payment-manual: '<green>Belastingbetaling handmatig uitgevoerd voor <yellow>{count}</yellow> spelers.</green>'
+
+# Belastinggeschiedenis
+history-header: '<gold>━━━ Belastinggeschiedenis: <white>{player}</white> ━━━</gold>'
+history-summary: '<gray>Totaal belast: <yellow>{total}</yellow>  |  Lid sinds: <white>{member_since}</white>  |  Laatst gezien: <white>{last_seen}</white></gray>'
+history-empty: '<gray>Geen belastinggeschiedenis gevonden voor deze speler.</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(saldo: <white>{balance_before}</white>)</gray>'
+history-footer: '<gray>Pagina <white>{page}</white>/<white>{total_pages}</white>  (<white>{total_events}</white> gebeurtenissen totaal)</gray>'
+history-no-database: '<red>Belastinggeschiedenis vereist MySQL-opslag. YAML-opslag registreert geen afzonderlijke gebeurtenissen.</red>'
+history-specify-player: '<red>Gebruik: /eztax history {player} [pagina]</red>'

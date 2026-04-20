@@ -25,3 +25,12 @@ tax-reminder: '<yellow>Erinnerung: Sie schulden <gold>{amount}</gold> Steuern. <
 tax-late: '<red>Zahlungserinnerung: Sie haben überfällige Steuern in Höhe von <gold>{amount}</gold>! Bitte zahlen Sie so bald wie möglich, um weitere Strafen zu vermeiden.</red>'
 tax-payment-running: '<yellow>Steuerzahlungen werden für alle Spieler verarbeitet...</yellow>'
 tax-payment-manual: '<green>Steuerzahlung manuell für <yellow>{count}</yellow> Spieler ausgelöst.</green>'
+
+# Steuerhistorie
+history-header: '<gold>━━━ Steuerhistorie: <white>{player}</white> ━━━</gold>'
+history-summary: '<gray>Gesamt besteuert: <yellow>{total}</yellow>  |  Mitglied seit: <white>{member_since}</white>  |  Zuletzt gesehen: <white>{last_seen}</white></gray>'
+history-empty: '<gray>Keine Steuerhistorie für diesen Spieler erfasst.</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(Guthaben: <white>{balance_before}</white>)</gray>'
+history-footer: '<gray>Seite <white>{page}</white>/<white>{total_pages}</white>  (<white>{total_events}</white> Einträge gesamt)</gray>'
+history-no-database: '<red>Die Steuerhistorie erfordert MySQL-Speicher. Der YAML-Speicher zeichnet keine Einzelereignisse auf.</red>'
+history-specify-player: '<red>Verwendung: /eztax history {player} [Seite]</red>'

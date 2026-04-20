@@ -36,7 +36,7 @@ public class EconomyComponent implements Component {
         if (vaultHook != null && hooked) {
             // If config requests command-capture for transaction tax, do not register the taxed economy wrapper.
             if (taxConfig != null && taxConfig.isTransactionTaxCaptureCommands()) {
-                plugin.getLogger().info("Transaction tax will be handled by command capture (not registering taxed economy wrapper).");
+                plugin.getLogger().info("Transaction taxes: command capture mode active.");
                 return;
             }
             vaultHook.registerTaxedEconomy(taxEngine, taxConfig);

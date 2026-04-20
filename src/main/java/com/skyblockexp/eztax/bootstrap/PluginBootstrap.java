@@ -2,6 +2,7 @@ package com.skyblockexp.eztax.bootstrap;
 
 import com.skyblockexp.eztax.EzTaxPlugin;
 import com.skyblockexp.eztax.bootstrap.component.*;
+import com.skyblockexp.eztax.integration.EzSeasonsHook;
 
 public class PluginBootstrap {
     private final EzTaxPlugin plugin;
@@ -16,6 +17,7 @@ public class PluginBootstrap {
     private SchedulerComponent schedulerComponent;
     private CommandComponent commandComponent;
     private ListenerComponent listenerComponent;
+    private EzSeasonsHook ezSeasonsHook;
 
     public PluginBootstrap(EzTaxPlugin plugin) {
         this.plugin = plugin;
@@ -39,7 +41,7 @@ public class PluginBootstrap {
         economyComponent.start();
 
         if (economyComponent.isHooked()) {
-            taxEngineComponent = new TaxEngineComponent(plugin, configComponent.getTaxConfig(), statsComponent.getStatsService(), exemptionComponent.getExemptionService(), economyComponent.getVaultHook());
+            taxEngineComponent = new TaxEngineComponent(plugin, configComponent.getTaxConfig(), statsComponent.getStatsService(), exemptionComponent.getExemptionService(), economyComponent.getVaultHook(), statsComponent.getTaxHistoryRepository(), statsComponent.getTrackedPlayerRepository());
             taxEngineComponent.start();
 
             economyComponent.registerTaxEngine(taxEngineComponent.getTaxEngine());
@@ -54,15 +56,21 @@ public class PluginBootstrap {
 
             schedulerComponent = new SchedulerComponent(plugin, configComponent.getTaxConfig(), taxEngineComponent.getTaxEngine());
             schedulerComponent.start();
+
+            ezSeasonsHook = new EzSeasonsHook(plugin, statsComponent.getStatsService());
+            ezSeasonsHook.hook();
         } else {
             plugin.getLogger().warning("Vault economy was not detected. EzTax will run in standby mode.");
         }
 
-        commandComponent = new CommandComponent(plugin, configComponent.getTaxConfig(), statsComponent.getStatsService(), taxEngineComponent != null ? taxEngineComponent.getTaxEngine() : null, economyComponent.getVaultHook(), configComponent.getMessages(), exemptionComponent.getExemptionService());
+        commandComponent = new CommandComponent(plugin, configComponent.getTaxConfig(), statsComponent.getStatsService(), taxEngineComponent != null ? taxEngineComponent.getTaxEngine() : null, economyComponent.getVaultHook(), configComponent.getMessages(), exemptionComponent.getExemptionService(), statsComponent.getTaxHistoryRepository(), statsComponent.getTrackedPlayerRepository());
         commandComponent.start();
+
+        plugin.getLogger().info("EzTax v" + plugin.getPluginMeta().getVersion() + " enabled.");
     }
 
     public void stop() {
+        if (ezSeasonsHook != null) ezSeasonsHook.unhook();
         if (schedulerComponent != null) schedulerComponent.stop();
         if (listenerComponent != null) listenerComponent.stop();
         if (taxEngineComponent != null) taxEngineComponent.stop();

@@ -37,7 +37,7 @@ public class CommandRegistry {
 
     public void registerCommands() {
         // Register main dispatcher (alias 'tax' configured in plugin.yml)
-        register("eztax", new EzTaxExecute(plugin, taxConfig, statsService, taxEngine, vaultHook, messages, exemptionService));
+        register("eztax", new EzTaxExecute(plugin, taxConfig, statsService, taxEngine, vaultHook, messages, exemptionService, null, null));
 
         // Keep core top-level commands for convenience (wrap Subcommands into CommandExecutors)
         register("exempt", new com.skyblockexp.eztax.command.CmdExecutor() {

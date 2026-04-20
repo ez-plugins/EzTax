@@ -26,3 +26,12 @@ tax-reminder: '<yellow>リマインダー: <gold>{amount}</gold> の税金を支
 tax-late: '<red>延滞通知: 合計 <gold>{amount}</gold> の延滞税があります！追加の罰金を避けるため、できるだけ早く支払ってください。</red>'
 tax-payment-running: '<yellow>全プレイヤーに税金支払いを処理中...</yellow>'
 tax-payment-manual: '<green>税金支払いが <yellow>{count}</yellow> 人のプレイヤーに手動で実行されました。</green>'
+
+# 税履歴
+history-header: '<gold>━━━ 税履歴: <white>{player}</white> ━━━</gold>'
+history-summary: '<gray>合計課税額: <yellow>{total}</yellow>  |  登録日: <white>{member_since}</white>  |  最終確認: <white>{last_seen}</white></gray>'
+history-empty: '<gray>このプレイヤーの税履歴は記録されていません。</gray>'
+history-entry: '<dark_gray>[<white>{date}</white>] <yellow>{type}</yellow> <red>-{amount}</red> <gray>(残高: <white>{balance_before}</white>)</gray>'
+history-footer: '<gray>ページ <white>{page}</white>/<white>{total_pages}</white>  (合計 <white>{total_events}</white> 件)</gray>'
+history-no-database: '<red>税履歴には MySQL ストレージが必要です。YAML ストレージは個別イベントを記録しません。</red>'
+history-specify-player: '<red>使用法: /eztax history {player} [ページ]</red>'
