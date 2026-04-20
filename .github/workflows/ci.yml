@@ -30,14 +30,13 @@ jobs:
 
       - name: Clone and install MockBukkit (dev/26.1.1)
         run: |
-          if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
-            git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout dev/26.1.1
-            mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
-          fi
+          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
+          cd /tmp/MockBukkit
+          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          ./gradlew publishToMavenLocal --no-daemon -q
 
       - name: Run tests with coverage
-        run: mvn -B test
+        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -72,11 +71,10 @@ jobs:
 
       - name: Clone and install MockBukkit (dev/26.1.1)
         run: |
-          if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
-            git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-            cd /tmp/MockBukkit && git checkout dev/26.1.1
-            mvn install -B -DskipTests -q -f mockbukkit-v26.1/pom.xml
-          fi
+          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
+          cd /tmp/MockBukkit
+          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          ./gradlew publishToMavenLocal --no-daemon -q
 
       - name: Run feature tests
-        run: mvn -B -Pfeature-tests -Dtest=*FeatureTest test
+        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} -Pfeature-tests -Dtest=*FeatureTest test
