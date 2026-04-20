@@ -104,7 +104,7 @@
         </dependency>
         <!-- EzSeasons API — optional season-reset integration -->
         <dependency>
-            <groupId>com.skyblockexp.lifesteal</groupId>
+            <groupId>com.github.ez-plugins.EzSeasons</groupId>
             <artifactId>ezseasons-api</artifactId>
             <version>2.1.2</version>
             <scope>provided</scope>

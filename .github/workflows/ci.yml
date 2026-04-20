@@ -28,6 +28,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
+      - name: Clone and install MockBukkit (dev-d245e0a)
+        run: |
+          if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
+            git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
+            cd /tmp/MockBukkit && git checkout d245e0a
+            mvn install -B -DskipTests -q
+          fi
+
       - name: Run tests with coverage
         run: mvn -B test
 
@@ -61,6 +69,14 @@ jobs:
           key: ${{ runner.os }}-m2-feature-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2-feature-
+
+      - name: Clone and install MockBukkit (dev-d245e0a)
+        run: |
+          if [ ! -f ~/.m2/repository/org/mockbukkit/mockbukkit/mockbukkit-v26.1/dev-d245e0a/mockbukkit-v26.1-dev-d245e0a.jar ]; then
+            git clone https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
+            cd /tmp/MockBukkit && git checkout d245e0a
+            mvn install -B -DskipTests -q
+          fi
 
       - name: Run feature tests
         run: mvn -B -Pfeature-tests -Dtest=*FeatureTest test
