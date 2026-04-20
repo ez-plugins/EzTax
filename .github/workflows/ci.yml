@@ -33,7 +33,7 @@ jobs:
           git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
           cd /tmp/MockBukkit
           echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q
+          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
 
       - name: Run tests with coverage
         run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} test
@@ -74,7 +74,7 @@ jobs:
           git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
           cd /tmp/MockBukkit
           echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q
+          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
 
       - name: Run feature tests
         run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} -Pfeature-tests -Dtest=*FeatureTest test
