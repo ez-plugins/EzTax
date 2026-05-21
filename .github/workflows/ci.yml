@@ -150,7 +150,7 @@ jobs:
       - name: Check EzTax loaded without errors
         run: |
           LOG=smoke-server/server.log
-          if grep -iE "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|Error.*[Ee]z[Tt]ax" "$LOG"; then
+          if grep -iEA 30 "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|Error.*[Ee]z[Tt]ax" "$LOG"; then
             echo "::error::EzTax logged errors on Paper startup"
             exit 1
           fi
@@ -262,7 +262,7 @@ jobs:
       - name: Check EzTax loaded without errors
         run: |
           LOG=spigot-server/server.log
-          if grep -iE "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|ERROR.*[Ee]z[Tt]ax" "$LOG"; then
+          if grep -iEA 30 "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|ERROR.*[Ee]z[Tt]ax" "$LOG"; then
             echo "::error::EzTax logged errors on Spigot startup"
             exit 1
           fi
