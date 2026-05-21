@@ -1,47 +1,20 @@
 package com.skyblockexp.eztax.compat;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.meta.ItemMeta;
-
 /**
- * Detects the server's API capabilities on first use and returns the
- * appropriate {@link PlatformAdapter} singleton for the lifetime of the plugin.
+ * Returns the {@link LegacyAdapter} for inventory and item-meta operations.
  *
- * <p>Detection uses {@code ItemMeta.displayName(Component)}, which is a
- * <em>Paper-only</em> extension absent from vanilla Bukkit / Spigot.
- * Spigot 1.18+ exposes the Adventure API but stops short of the Paper-specific
- * {@code ItemMeta} component overloads, so this check correctly selects
- * {@link LegacyAdapter} on Spigot and {@link ComponentAdapter} on Paper.</p>
+ * <p>We always use the legacy String-based Bukkit API so the plugin works
+ * identically on both Paper and Spigot. Adventure is used only for internal
+ * message parsing (MiniMessage → Component → legacy String) and is shaded +
+ * relocated into the plugin JAR; no Component objects ever cross the server
+ * API boundary, avoiding classloader conflicts on either platform.</p>
  */
 public final class PlatformAdapterFactory {
-    private static volatile PlatformAdapter instance;
+    private static final PlatformAdapter INSTANCE = new LegacyAdapter();
 
     private PlatformAdapterFactory() {}
 
-    /**
-     * Returns the adapter, creating it on first call via runtime detection.
-     * Thread-safe without locking in the common (already-initialized) path.
-     */
     public static PlatformAdapter get() {
-        if (instance == null) {
-            synchronized (PlatformAdapterFactory.class) {
-                if (instance == null) {
-                    instance = detect();
-                }
-            }
-        }
-        return instance;
-    }
-
-    private static PlatformAdapter detect() {
-        try {
-            // ItemMeta.displayName(Component) is Paper-only; absent from Spigot's ItemMeta interface.
-            ItemMeta.class.getMethod("displayName", Component.class);
-            return new ComponentAdapter();
-        } catch (NoSuchMethodException e) {
-            return new LegacyAdapter();
-        }
+        return INSTANCE;
     }
 }
