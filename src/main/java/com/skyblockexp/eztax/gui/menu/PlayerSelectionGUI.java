@@ -1,5 +1,6 @@
 package com.skyblockexp.eztax.gui.menu;
 
+import com.skyblockexp.eztax.compat.PlatformAdapterFactory;
 import com.skyblockexp.eztax.gui.GUI;
 import com.skyblockexp.eztax.gui.IconBuilder;
 import com.skyblockexp.eztax.gui.IconClickAction;
@@ -28,7 +29,7 @@ public class PlayerSelectionGUI extends GUI {
             ItemStack head = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName(p.getName());
+                PlatformAdapterFactory.get().setDisplayName(meta, p.getName());
                 meta.setOwningPlayer(p);
                 head.setItemMeta(meta);
             }

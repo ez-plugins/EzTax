@@ -1,5 +1,6 @@
 package com.skyblockexp.eztax.gui;
 
+import com.skyblockexp.eztax.compat.PlatformAdapterFactory;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,12 +21,12 @@ public final class IconBuilder {
     }
 
     public IconBuilder name(String name) {
-        if (meta != null) meta.setDisplayName(name);
+        if (meta != null) PlatformAdapterFactory.get().setDisplayName(meta, name);
         return this;
     }
 
     public IconBuilder lore(List<String> lines) {
-        if (meta != null) meta.setLore(new ArrayList<>(lines));
+        if (meta != null) PlatformAdapterFactory.get().setLore(meta, new ArrayList<>(lines));
         return this;
     }
 

@@ -48,7 +48,7 @@ public class EzSeasonsHook {
 
         integration = new EzSeasonsIntegration(statsService, plugin.getLogger());
         api.registerIntegration(integration);
-        plugin.getLogger().info("EzSeasons integration enabled (v" + ezSeasons.getPluginMeta().getVersion() + ").");
+        plugin.getLogger().info("EzSeasons integration enabled (v" + ezSeasons.getDescription().getVersion() + ").");
         return true;
     }
 

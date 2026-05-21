@@ -5,16 +5,16 @@
 
     <groupId>com.skyblockexp</groupId>
     <artifactId>eztax</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <name>EzTax</name>
     <description>Economy taxation and inflation control plugin using Vault.</description>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <paper.version>[26.1.2.build,)</paper.version>
-        <mockbukkit.version>dev-d245e0a</mockbukkit.version>
+        <paper.version>1.21.11-R0.1-SNAPSHOT</paper.version>
+        <mockbukkit.version>4.110.0</mockbukkit.version>
     </properties>
 
     <repositories>
@@ -51,16 +51,21 @@
             <version>1.7.1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Adventure is provided by Paper 1.16.5+; do NOT shade to avoid PluginRemapper conflicts -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
             <version>4.26.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-key</artifactId>
             <version>4.26.1</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- MiniMessage is NOT bundled by Spigot — shade it so the plugin works on Spigot too.
+             Does not need relocation: it builds Components against the server-provided adventure-api. -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>
@@ -70,11 +75,13 @@
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-serializer-legacy</artifactId>
             <version>4.26.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>examination-api</artifactId>
             <version>1.3.0</version>
+            <scope>provided</scope>
         </dependency>
         <!-- Testing -->
         <dependency>
@@ -91,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockbukkit.mockbukkit</groupId>
-            <artifactId>mockbukkit-v26.1</artifactId>
+            <artifactId>mockbukkit-v1.21</artifactId>
             <version>${mockbukkit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -129,7 +136,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.13.0</version>
+                <configuration>
+                    <fork>true</fork>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -174,11 +184,7 @@
                                 <includes>
                                     <include>org.bstats:bstats-bukkit</include>
                                     <include>org.bstats:bstats-base</include>
-                                    <include>net.kyori:adventure-api</include>
-                                    <include>net.kyori:adventure-key</include>
                                     <include>net.kyori:adventure-text-minimessage</include>
-                                    <include>net.kyori:adventure-text-serializer-legacy</include>
-                                    <include>net.kyori:examination-api</include>
                                     <include>com.github.EzFramework:jaloquent</include>
                                     <include>com.github.EzFramework:JavaQueryBuilder</include>
                                     <include>io.micrometer:micrometer-core</include>

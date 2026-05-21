@@ -66,7 +66,7 @@ public class PluginBootstrap {
         commandComponent = new CommandComponent(plugin, configComponent.getTaxConfig(), statsComponent.getStatsService(), taxEngineComponent != null ? taxEngineComponent.getTaxEngine() : null, economyComponent.getVaultHook(), configComponent.getMessages(), exemptionComponent.getExemptionService(), statsComponent.getTaxHistoryRepository(), statsComponent.getTrackedPlayerRepository());
         commandComponent.start();
 
-        plugin.getLogger().info("EzTax v" + plugin.getPluginMeta().getVersion() + " enabled.");
+        plugin.getLogger().info("EzTax v" + plugin.getDescription().getVersion() + " enabled.");
     }
 
     public void stop() {

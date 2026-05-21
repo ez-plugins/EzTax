@@ -1,17 +1,19 @@
 name: EzTax
 version: ${project.version}
 main: com.skyblockexp.eztax.EzTaxPlugin
-api-version: 26.1
+api-version: 1.16
 description: Economy taxation and inflation control plugin.
 softdepend: [Vault, EzEconomy, EzSeasons]
 
 commands:
   eztax:
-    description: "EzTax main command (alias: /tax)"
-    usage: /eztax <help|stats|sinks|reload|runwealthtax|settaxrate|transactiontax|exempt|unexempt|exemptions>
+    description: "EzTax main command"
     usage: /eztax <help|stats|sinks|reload|runwealthtax|runtaxpayment|settaxrate|transactiontax|exempt|unexempt|exemptions|check|pay|payfine|show|fines|history>
     permission: eztax.command.use
-    aliases: [tax]
+  tax:
+    description: "Alias for /eztax"
+    usage: /tax <help|stats|sinks|reload|runwealthtax|runtaxpayment|settaxrate|transactiontax|exempt|unexempt|exemptions|check|pay|payfine|show|fines|history>
+    permission: eztax.command.use
   exempt:
     description: Exempt player from taxes (admin)
     usage: /exempt <player>
@@ -83,5 +85,4 @@ permissions:
     default: true
   eztax.command.history.others:
     description: Allows viewing any player's tax history.
-    default: op
     default: op

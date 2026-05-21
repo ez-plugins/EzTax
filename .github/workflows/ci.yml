@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [ '**' ]
   pull_request:
     branches: [ main, master ]
 
@@ -17,26 +19,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-          java-package: jdk
-          check-latest: true
-
-      - name: Cache Maven local repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
-      - name: Clone and install MockBukkit (dev/26.1.1)
-        run: |
-          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-          cd /tmp/MockBukkit
-          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
+          cache: maven
 
       - name: Run tests with coverage
-        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} test
+        run: mvn -B package
+
+      - name: Upload plugin JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/EzTax-*.jar
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -58,23 +51,105 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-          java-package: jdk
-          check-latest: true
-
-      - name: Cache Maven local repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-feature-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-feature-
-
-      - name: Clone and install MockBukkit (dev/26.1.1)
-        run: |
-          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-          cd /tmp/MockBukkit
-          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
+          cache: maven
 
       - name: Run feature tests
-        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} -Pfeature-tests -Dtest=*FeatureTest test
+        run: mvn -B -Pfeature-tests -Dtest=*FeatureTest test
+
+  smoke:
+    name: Paper server smoke test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build plugin JAR
+        run: mvn -B -DskipTests package
+
+      - name: Resolve latest Paper build
+        id: paper
+        run: |
+          MC_VERSION=$(curl -fsSL https://api.papermc.io/v2/projects/paper | \
+            python3 -c "import sys,json; vs=json.load(sys.stdin)['versions']; print(vs[-1])")
+          BUILD=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin)['builds']; print(builds[-1]['build'])")
+          JAR_NAME=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds/${BUILD}" | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['downloads']['application']['name'])")
+          echo "mc_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build=${BUILD}"           >> "$GITHUB_OUTPUT"
+          echo "jar_name=${JAR_NAME}"     >> "$GITHUB_OUTPUT"
+          echo "Resolved: Paper ${MC_VERSION} build ${BUILD} (${JAR_NAME})"
+
+      - name: Download Paper server JAR
+        run: |
+          mkdir -p smoke-server/plugins
+          curl -fsSL \
+            "https://api.papermc.io/v2/projects/paper/versions/${{ steps.paper.outputs.mc_version }}/builds/${{ steps.paper.outputs.build }}/downloads/${{ steps.paper.outputs.jar_name }}" \
+            -o smoke-server/paper.jar
+
+      - name: Copy plugin JAR
+        run: cp target/EzTax-*.jar smoke-server/plugins/EzTax.jar
+
+      - name: Configure server
+        run: |
+          echo "eula=true" > smoke-server/eula.txt
+          printf '%s\n' \
+            "online-mode=false" \
+            "level-type=flat" \
+            "generate-structures=false" \
+            "max-players=0" \
+            > smoke-server/server.properties
+
+      - name: Run server and wait for ready
+        run: |
+          cd smoke-server
+          java -Xms512m -Xmx1g -jar paper.jar --nogui > server.log 2>&1 &
+          SERVER_PID=$!
+          ELAPSED=0
+          while [ $ELAPSED -lt 120 ]; do
+            sleep 2; ELAPSED=$((ELAPSED + 2))
+            if grep -q "Done (" server.log 2>/dev/null; then
+              echo "Server ready after ${ELAPSED}s"; break
+            fi
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "::error::Server process exited before reaching 'Done ('"
+              cat server.log
+              exit 1
+            fi
+          done
+          if ! grep -q "Done (" server.log 2>/dev/null; then
+            echo "::error::Server did not reach 'Done (' within 120s"
+            cat server.log
+            exit 1
+          fi
+          kill $SERVER_PID 2>/dev/null || true
+
+      - name: Check EzTax loaded without errors
+        run: |
+          LOG=smoke-server/server.log
+          if grep -iE "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|Error.*[Ee]z[Tt]ax" "$LOG"; then
+            echo "::error::EzTax logged errors on Paper startup"
+            exit 1
+          fi
+          if grep -qiE "Enabling EzTax|EzTax.*enabled|Loading EzTax" "$LOG"; then
+            echo "Smoke test passed — EzTax loaded on Paper successfully."
+          else
+            echo "::warning::EzTax load confirmation not found in log"
+          fi
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-smoke-server-log
+          path: smoke-server/server.log
+          retention-days: 7

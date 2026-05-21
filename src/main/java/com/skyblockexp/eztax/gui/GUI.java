@@ -1,6 +1,6 @@
 package com.skyblockexp.eztax.gui;
 
-import org.bukkit.Bukkit;
+import com.skyblockexp.eztax.compat.PlatformAdapterFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.event.inventory.ClickType;
@@ -18,7 +18,7 @@ public abstract class GUI {
     protected final Map<Integer, IconClickAction> actions = new ConcurrentHashMap<>();
 
     protected GUI(int size, String title) {
-        this.inventory = Bukkit.createInventory(null, size, title);
+        this.inventory = PlatformAdapterFactory.get().createInventory(null, size, title);
     }
 
     protected void registerAction(int slot, IconClickAction action) {
