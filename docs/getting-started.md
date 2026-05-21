@@ -19,10 +19,13 @@ description: "Installation and first-run setup for EzTax"
 
 | Requirement | Version |
 |---|---|
-| Paper (or fork) | 1.21+ |
-| Java | 17+ |
+| Paper (or fork) | 1.21.1+ |
+| Java | 21+ |
 | Vault | Latest |
 | Economy plugin | Any Vault-compatible (EssentialsX, CMI, etc.) |
+
+> **Note for Forge/Fabric/hybrid servers:** EzTax targets Paper (and its forks). Hybrid
+> platforms (Mohist, Arclight, etc.) may work but are not officially supported.
 
 ---
 
@@ -74,3 +77,18 @@ Dependencies are downloaded automatically via Maven/JitPack.
 
 Your existing `config.yml` and `stats.yml` are preserved. Check the release notes for any new
 config keys to add manually.
+
+---
+
+## Version compatibility
+
+| EzTax version | Minecraft version | Paper API |
+|---|---|---|
+| **2.1.x** (current) | 1.21.1 and later | 1.21+ |
+| **2.0.x** (legacy) | 1.21.4 and later | 26.1 |
+| **1.x** (legacy) | 1.20.x and earlier | — |
+
+EzTax 2.1.0 was rebuilt against Paper's stable 1.21.1 API and runs on any Paper 1.21.1+ server.
+It no longer requires the Paper 26.x platform versioning introduced in 1.21.4.
+
+EzTax 1.x will continue to receive critical bug fixes but no new features.

@@ -16,6 +16,14 @@ description: "Configure where collected tax money is routed"
 
 ---
 
+{: .highlight }
+> **EzTax 2.x feature** — The `tax-sink` configuration section is only available in EzTax 2.x.
+> In **EzTax 1.x** there is no `tax-sink` block; all collected tax money is always **burned**
+> (removed from the economy). See
+> [Version compatibility](../getting-started.md#version-compatibility) for details.
+
+---
+
 ## Overview
 
 By default, when EzTax collects a tax it simply removes the money from the player's account and
