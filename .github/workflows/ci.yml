@@ -98,6 +98,12 @@ jobs:
             "https://api.papermc.io/v2/projects/paper/versions/${{ steps.paper.outputs.mc_version }}/builds/${{ steps.paper.outputs.build }}/downloads/${{ steps.paper.outputs.jar_name }}" \
             -o smoke-server/paper.jar
 
+      - name: Download Vault plugin
+        run: |
+          VAULT_URL=$(curl -fsSL https://api.github.com/repos/MilkBowl/Vault/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.jar')))")
+          curl -fsSL "$VAULT_URL" -o smoke-server/plugins/Vault.jar
+
       - name: Copy plugin JAR
         run: cp target/EzTax-*.jar smoke-server/plugins/EzTax.jar
 
