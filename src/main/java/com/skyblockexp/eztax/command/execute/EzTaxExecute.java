@@ -30,7 +30,6 @@ import com.skyblockexp.eztax.command.subcommand.eztax.HistorySubcommand;
 import com.skyblockexp.eztax.repository.TaxHistoryRepository;
 import com.skyblockexp.eztax.repository.TrackedPlayerRepository;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import com.skyblockexp.eztax.task.WealthTaxTask;
 import com.skyblockexp.eztax.task.TaxPaymentTask;
@@ -75,7 +74,7 @@ public class EzTaxExecute extends com.skyblockexp.eztax.command.CmdExecutor {
                 return true;
             }
             messageManager.send(s, "wealth-tax-running");
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new WealthTaxTask(plugin, taxEngine, messageManager, s));
+            plugin.getPluginScheduler().runAsync(new WealthTaxTask(plugin, taxEngine, messageManager, s));
             return true;
         });
 
@@ -85,7 +84,7 @@ public class EzTaxExecute extends com.skyblockexp.eztax.command.CmdExecutor {
                 return true;
             }
             messageManager.send(s, "run-taxpayments-started");
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new TaxPaymentTask(plugin, taxEngine, messageManager, s));
+            plugin.getPluginScheduler().runAsync(new TaxPaymentTask(plugin, taxEngine, messageManager, s));
             return true;
         });
 

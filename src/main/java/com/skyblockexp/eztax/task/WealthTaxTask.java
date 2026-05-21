@@ -25,7 +25,7 @@ public class WealthTaxTask implements Runnable {
         int count = 0;
         for (OfflinePlayer playerObj : Bukkit.getOfflinePlayers()) {
             if (playerObj != null && playerObj.hasPlayedBefore()) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> taxEngine.applyWealthTax(playerObj));
+                plugin.getPluginScheduler().runSync(() -> taxEngine.applyWealthTax(playerObj));
                 count++;
             }
         }

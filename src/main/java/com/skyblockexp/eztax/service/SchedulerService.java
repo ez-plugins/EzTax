@@ -2,6 +2,7 @@ package com.skyblockexp.eztax.service;
 
 import com.skyblockexp.eztax.config.TaxConfig;
 import com.skyblockexp.eztax.config.TaxInterval;
+import com.skyblockexp.eztax.scheduler.PluginScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,14 +18,16 @@ public class SchedulerService {
     private final JavaPlugin plugin;
     private final TaxConfig config;
     private final TaxEngine taxEngine;
+    private final PluginScheduler scheduler;
 
-    private int wealthTaskId = -1;
-    private int inactivityTaskId = -1;
+    private Runnable wealthTaskCancel;
+    private Runnable inactivityTaskCancel;
 
     public SchedulerService(JavaPlugin plugin, TaxConfig config, TaxEngine taxEngine) {
         this.plugin = plugin;
         this.config = config;
         this.taxEngine = taxEngine;
+        this.scheduler = new PluginScheduler(plugin);
     }
 
     public void start() {
@@ -33,8 +36,10 @@ public class SchedulerService {
     }
 
     public void stop() {
-        cancelTask(wealthTaskId);
-        cancelTask(inactivityTaskId);
+        cancelTask(wealthTaskCancel);
+        wealthTaskCancel = null;
+        cancelTask(inactivityTaskCancel);
+        inactivityTaskCancel = null;
     }
 
     public void reload() {
@@ -47,13 +52,13 @@ public class SchedulerService {
             return;
         }
         TaxInterval interval = config.getWealthTaxInterval();
-        wealthTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        wealthTaskCancel = scheduler.runAsyncTimer(() -> {
             try {
                 runWealthTaxAsync();
             } catch (Exception ex) {
                 plugin.getLogger().log(Level.WARNING, "Wealth tax run failed; skipping this cycle.", ex);
             }
-        }, interval.getTicks(), interval.getTicks()).getTaskId();
+        }, interval.getTicks(), interval.getTicks());
     }
 
     private void scheduleInactivityFee() {
@@ -61,13 +66,13 @@ public class SchedulerService {
             return;
         }
         long dailyTicks = TaxInterval.DAILY.getTicks();
-        inactivityTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        inactivityTaskCancel = scheduler.runAsyncTimer(() -> {
             try {
                 runInactivityFeeAsync();
             } catch (Exception ex) {
                 plugin.getLogger().log(Level.WARNING, "Inactivity fee run failed; skipping this cycle.", ex);
             }
-        }, dailyTicks, dailyTicks).getTaskId();
+        }, dailyTicks, dailyTicks);
     }
 
     private void runWealthTaxAsync() {
@@ -77,7 +82,7 @@ public class SchedulerService {
                 continue;
             }
             UUID uuid = player.getUniqueId();
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            scheduler.runSync(() -> {
                 OfflinePlayer syncPlayer = Bukkit.getOfflinePlayer(uuid);
                 taxEngine.applyWealthTax(syncPlayer);
             });
@@ -101,16 +106,16 @@ public class SchedulerService {
                 continue;
             }
             UUID uuid = player.getUniqueId();
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            scheduler.runSync(() -> {
                 OfflinePlayer syncPlayer = Bukkit.getOfflinePlayer(uuid);
                 taxEngine.applyInactivityFee(syncPlayer);
             });
         }
     }
 
-    private void cancelTask(int taskId) {
-        if (taskId != -1) {
-            Bukkit.getScheduler().cancelTask(taskId);
+    private void cancelTask(Runnable cancel) {
+        if (cancel != null) {
+            cancel.run();
         }
     }
 }

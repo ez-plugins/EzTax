@@ -1,7 +1,8 @@
 name: EzTax
 version: ${project.version}
 main: com.skyblockexp.eztax.EzTaxPlugin
-api-version: 1.16
+api-version: 1.19
+folia-supported: true
 description: Economy taxation and inflation control plugin.
 softdepend: [Vault, EzEconomy, EzSeasons, Essentials]
 

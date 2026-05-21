@@ -3,15 +3,18 @@ package com.skyblockexp.eztax;
 import com.skyblockexp.eztax.bootstrap.PluginBootstrap;
 import com.skyblockexp.eztax.config.GuiConfig;
 import com.skyblockexp.eztax.config.Messages;
+import com.skyblockexp.eztax.scheduler.PluginScheduler;
 import com.skyblockexp.eztax.service.ExemptionService;
 import com.skyblockexp.eztax.service.TaxEngine;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class EzTaxPlugin extends JavaPlugin {
     private PluginBootstrap bootstrap;
+    private PluginScheduler pluginScheduler;
 
     @Override
     public void onEnable() {
+        pluginScheduler = new PluginScheduler(this);
         bootstrap = new PluginBootstrap(this);
         bootstrap.start();
     }
@@ -23,6 +26,10 @@ public class EzTaxPlugin extends JavaPlugin {
 
     public void reloadEzTax() {
         if (bootstrap != null) bootstrap.reload();
+    }
+
+    public PluginScheduler getPluginScheduler() {
+        return pluginScheduler;
     }
 
     public GuiConfig getGuiConfig() {
