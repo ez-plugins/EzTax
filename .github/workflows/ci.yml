@@ -70,10 +70,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: maven
 
-      - name: Build plugin JAR
-        run: mvn -B -DskipTests package
+      - name: Download plugin JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/
 
       - name: Resolve latest Paper build
         id: paper
