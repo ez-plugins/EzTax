@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [ '**' ]
   pull_request:
     branches: [ main, master ]
 
@@ -17,26 +19,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-          java-package: jdk
-          check-latest: true
-
-      - name: Cache Maven local repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
-      - name: Clone and install MockBukkit (dev/26.1.1)
-        run: |
-          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-          cd /tmp/MockBukkit
-          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
+          cache: maven
 
       - name: Run tests with coverage
-        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} test
+        run: mvn -B package
+
+      - name: Upload plugin JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/EzTax-*.jar
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -58,23 +51,347 @@ jobs:
         with:
           distribution: temurin
           java-version: '25'
-          java-package: jdk
-          check-latest: true
-
-      - name: Cache Maven local repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-feature-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-feature-
-
-      - name: Clone and install MockBukkit (dev/26.1.1)
-        run: |
-          git clone --depth=1 --branch dev/26.1.1 https://github.com/MockBukkit/MockBukkit.git /tmp/MockBukkit
-          cd /tmp/MockBukkit
-          echo "MOCKBUKKIT_VERSION=dev-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          ./gradlew publishToMavenLocal --no-daemon -q -x javadoc
+          cache: maven
 
       - name: Run feature tests
-        run: mvn -B -Dmockbukkit.version=${{ env.MOCKBUKKIT_VERSION }} -Pfeature-tests -Dtest=*FeatureTest test
+        run: mvn -B -Pfeature-tests -Dtest=*FeatureTest test
+
+  smoke:
+    name: Paper server smoke test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download plugin JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/
+
+      - name: Resolve latest Paper build
+        id: paper
+        run: |
+          MC_VERSION=$(curl -fsSL https://api.papermc.io/v2/projects/paper | \
+            python3 -c "import sys,json; vs=json.load(sys.stdin)['versions']; print(vs[-1])")
+          BUILD=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin)['builds']; print(builds[-1]['build'])")
+          JAR_NAME=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds/${BUILD}" | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['downloads']['application']['name'])")
+          echo "mc_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build=${BUILD}"           >> "$GITHUB_OUTPUT"
+          echo "jar_name=${JAR_NAME}"     >> "$GITHUB_OUTPUT"
+          echo "Resolved: Paper ${MC_VERSION} build ${BUILD} (${JAR_NAME})"
+
+      - name: Download Paper server JAR
+        run: |
+          mkdir -p smoke-server/plugins
+          curl -fsSL \
+            "https://api.papermc.io/v2/projects/paper/versions/${{ steps.paper.outputs.mc_version }}/builds/${{ steps.paper.outputs.build }}/downloads/${{ steps.paper.outputs.jar_name }}" \
+            -o smoke-server/paper.jar
+
+      - name: Download Vault plugin
+        run: |
+          VAULT_URL=$(curl -fsSL https://api.github.com/repos/MilkBowl/Vault/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.jar')))")
+          curl -fsSL "$VAULT_URL" -o smoke-server/plugins/Vault.jar
+
+      - name: Download EssentialsX plugin
+        run: |
+          ESS_URL=$(curl -fsSL https://api.github.com/repos/EssentialsX/Essentials/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].startswith('EssentialsX-') and a['name'].endswith('.jar') and not any(x in a['name'] for x in ['Chat','Spawn','Discord','GeoIP','XMPP','Protect'])))")
+          curl -fsSL "$ESS_URL" -o smoke-server/plugins/EssentialsX.jar
+
+      - name: Copy plugin JAR
+        run: cp target/EzTax-*.jar smoke-server/plugins/EzTax.jar
+
+      - name: Configure server
+        run: |
+          echo "eula=true" > smoke-server/eula.txt
+          printf '%s\n' \
+            "online-mode=false" \
+            "level-type=flat" \
+            "generate-structures=false" \
+            "max-players=0" \
+            > smoke-server/server.properties
+
+      - name: Run server and wait for ready
+        run: |
+          cd smoke-server
+          java -Xms512m -Xmx1g -jar paper.jar --nogui > server.log 2>&1 &
+          SERVER_PID=$!
+          ELAPSED=0
+          while [ $ELAPSED -lt 120 ]; do
+            sleep 2; ELAPSED=$((ELAPSED + 2))
+            if grep -q "Done (" server.log 2>/dev/null; then
+              echo "Server ready after ${ELAPSED}s"; break
+            fi
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "::error::Server process exited before reaching 'Done ('"
+              cat server.log
+              exit 1
+            fi
+          done
+          if ! grep -q "Done (" server.log 2>/dev/null; then
+            echo "::error::Server did not reach 'Done (' within 120s"
+            cat server.log
+            exit 1
+          fi
+          kill $SERVER_PID 2>/dev/null || true
+
+      - name: Check EzTax loaded without errors
+        run: |
+          LOG=smoke-server/server.log
+          if grep -iEA 30 "SEVERE.*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax|Error.*[Ee]z[Tt]ax" "$LOG"; then
+            echo "::error::EzTax logged errors on Paper startup"
+            exit 1
+          fi
+          if grep -qiE "Enabling EzTax|EzTax.*enabled|Loading EzTax" "$LOG"; then
+            echo "Smoke test passed — EzTax loaded on Paper successfully."
+          else
+            echo "::warning::EzTax load confirmation not found in log"
+          fi
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-smoke-server-log
+          path: smoke-server/server.log
+          retention-days: 7
+
+  smoke-spigot:
+    name: Spigot server smoke test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Spigot 1.21.1 JAR
+        id: spigot-cache
+        uses: actions/cache@v4
+        with:
+          path: spigot-build/spigot-1.21.1.jar
+          key: spigot-buildtools-1.21.1
+
+      - name: Build Spigot 1.21.1 with BuildTools
+        if: steps.spigot-cache.outputs.cache-hit != 'true'
+        run: |
+          git config --global user.email "ci@github" && git config --global user.name "CI"
+          mkdir -p spigot-build && cd spigot-build
+          curl -fsSLo BuildTools.jar \
+            https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+          java -jar BuildTools.jar --rev 1.21.1 --nogui 2>&1 | tail -20
+
+      - name: Download plugin JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/
+
+      - name: Prepare smoke server
+        run: |
+          mkdir -p spigot-server/plugins
+          cp spigot-build/spigot-1.21.1.jar spigot-server/spigot.jar
+
+      - name: Download Vault plugin
+        run: |
+          VAULT_URL=$(curl -fsSL https://api.github.com/repos/MilkBowl/Vault/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.jar')))")
+          curl -fsSL "$VAULT_URL" -o spigot-server/plugins/Vault.jar
+
+      - name: Download EssentialsX plugin
+        run: |
+          ESS_URL=$(curl -fsSL https://api.github.com/repos/EssentialsX/Essentials/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].startswith('EssentialsX-') and a['name'].endswith('.jar') and not any(x in a['name'] for x in ['Chat','Spawn','Discord','GeoIP','XMPP','Protect'])))")
+          curl -fsSL "$ESS_URL" -o spigot-server/plugins/EssentialsX.jar
+
+      - name: Copy plugin JAR
+        run: cp target/EzTax-*.jar spigot-server/plugins/EzTax.jar
+
+      - name: Configure server
+        run: |
+          echo "eula=true" > spigot-server/eula.txt
+          printf '%s\n' \
+            "online-mode=false" \
+            "level-type=flat" \
+            "generate-structures=false" \
+            "max-players=0" \
+            > spigot-server/server.properties
+
+      - name: Run server and wait for ready
+        run: |
+          cd spigot-server
+          java -Xms512m -Xmx1g -jar spigot.jar --nogui > server.log 2>&1 &
+          SERVER_PID=$!
+          ELAPSED=0
+          while [ $ELAPSED -lt 180 ]; do
+            sleep 2; ELAPSED=$((ELAPSED + 2))
+            if grep -q "Done (" server.log 2>/dev/null; then
+              echo "Server ready after ${ELAPSED}s"; break
+            fi
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "::error::Server process exited before reaching 'Done (\'"
+              cat server.log
+              exit 1
+            fi
+          done
+          if ! grep -q "Done (" server.log 2>/dev/null; then
+            echo "::error::Server did not reach 'Done (\' within 180s"
+            cat server.log
+            exit 1
+          fi
+          kill $SERVER_PID 2>/dev/null || true
+
+      - name: Check EzTax loaded without errors
+        run: |
+          LOG=spigot-server/server.log
+          # Anchor SEVERE/ERROR to the log-level bracket (e.g. "[Server thread/ERROR]:") to avoid
+          # false positives from library-unpacking lines such as:
+          #   Unpacking error_prone_annotations-2.18.0.jar ... /EzTax/EzTax/spigot-server/...
+          # which contain both "error" and "EzTax" but are not plugin errors.
+          if grep -EA 30 "/(SEVERE|ERROR)\].*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax" "$LOG"; then
+            echo "::error::EzTax logged errors on Spigot startup"
+            exit 1
+          fi
+          if grep -qiE "Enabling EzTax|EzTax.*enabled|Loading EzTax" "$LOG"; then
+            echo "Smoke test passed — EzTax loaded on Spigot successfully."
+          else
+            echo "::warning::EzTax load confirmation not found in log"
+          fi
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spigot-smoke-server-log
+          path: spigot-server/server.log
+          retention-days: 7
+
+  smoke-folia:
+    name: Folia server smoke test
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download plugin JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: EzTax-${{ github.sha }}
+          path: target/
+
+      - name: Resolve latest Folia build
+        id: folia
+        run: |
+          MC_VERSION=$(curl -fsSL https://api.papermc.io/v2/projects/folia | \
+            python3 -c "import sys,json; vs=json.load(sys.stdin)['versions']; print(vs[-1])")
+          BUILD=$(curl -fsSL "https://api.papermc.io/v2/projects/folia/versions/${MC_VERSION}/builds" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin)['builds']; print(builds[-1]['build'])")
+          JAR_NAME=$(curl -fsSL "https://api.papermc.io/v2/projects/folia/versions/${MC_VERSION}/builds/${BUILD}" | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['downloads']['application']['name'])")
+          echo "mc_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build=${BUILD}"           >> "$GITHUB_OUTPUT"
+          echo "jar_name=${JAR_NAME}"     >> "$GITHUB_OUTPUT"
+          echo "Resolved: Folia ${MC_VERSION} build ${BUILD} (${JAR_NAME})"
+
+      - name: Download Folia server JAR
+        run: |
+          mkdir -p folia-server/plugins
+          curl -fsSL \
+            "https://api.papermc.io/v2/projects/folia/versions/${{ steps.folia.outputs.mc_version }}/builds/${{ steps.folia.outputs.build }}/downloads/${{ steps.folia.outputs.jar_name }}" \
+            -o folia-server/folia.jar
+
+      - name: Download Vault plugin
+        run: |
+          VAULT_URL=$(curl -fsSL https://api.github.com/repos/MilkBowl/Vault/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.jar')))")
+          curl -fsSL "$VAULT_URL" -o folia-server/plugins/Vault.jar
+
+      - name: Download EssentialsX plugin
+        run: |
+          ESS_URL=$(curl -fsSL https://api.github.com/repos/EssentialsX/Essentials/releases/latest | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(next(a['browser_download_url'] for a in d['assets'] if a['name'].startswith('EssentialsX-') and a['name'].endswith('.jar') and not any(x in a['name'] for x in ['Chat','Spawn','Discord','GeoIP','XMPP','Protect'])))")
+          curl -fsSL "$ESS_URL" -o folia-server/plugins/EssentialsX.jar
+
+      - name: Copy plugin JAR
+        run: cp target/EzTax-*.jar folia-server/plugins/EzTax.jar
+
+      - name: Configure server
+        run: |
+          echo "eula=true" > folia-server/eula.txt
+          printf '%s\n' \
+            "online-mode=false" \
+            "level-type=flat" \
+            "generate-structures=false" \
+            "max-players=0" \
+            > folia-server/server.properties
+
+      - name: Run server and wait for ready
+        run: |
+          cd folia-server
+          java -Xms512m -Xmx1g -jar folia.jar --nogui > server.log 2>&1 &
+          SERVER_PID=$!
+          ELAPSED=0
+          while [ $ELAPSED -lt 120 ]; do
+            sleep 2; ELAPSED=$((ELAPSED + 2))
+            if grep -q "Done (" server.log 2>/dev/null; then
+              echo "Server ready after ${ELAPSED}s"; break
+            fi
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "::error::Server process exited before reaching 'Done ('"
+              cat server.log
+              exit 1
+            fi
+          done
+          if ! grep -q "Done (" server.log 2>/dev/null; then
+            echo "::error::Server did not reach 'Done (' within 120s"
+            cat server.log
+            exit 1
+          fi
+          kill $SERVER_PID 2>/dev/null || true
+
+      - name: Check EzTax loaded without errors
+        run: |
+          LOG=folia-server/server.log
+          if grep -EA 30 "/(SEVERE|ERROR)\].*[Ee]z[Tt]ax|Could not load.*[Ee]z[Tt]ax" "$LOG"; then
+            echo "::error::EzTax logged errors on Folia startup"
+            exit 1
+          fi
+          if grep -qiE "Enabling EzTax|EzTax.*enabled|Loading EzTax" "$LOG"; then
+            echo "Smoke test passed — EzTax loaded on Folia successfully."
+          else
+            echo "::warning::EzTax load confirmation not found in log"
+          fi
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: folia-smoke-server-log
+          path: folia-server/server.log
+          retention-days: 7

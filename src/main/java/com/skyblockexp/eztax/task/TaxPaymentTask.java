@@ -25,7 +25,7 @@ public class TaxPaymentTask implements Runnable {
         int count = 0;
         for (OfflinePlayer playerObj : Bukkit.getOfflinePlayers()) {
             if (playerObj != null && playerObj.hasPlayedBefore()) {
-                plugin.getServer().getScheduler().runTask(plugin, () -> taxEngine.handleTaxPayment(playerObj));
+                plugin.getPluginScheduler().runSync(() -> taxEngine.handleTaxPayment(playerObj));
                 count++;
             }
         }

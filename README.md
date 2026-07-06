@@ -2,8 +2,8 @@
 
 > A professional, highly configurable tax and fine management plugin for Paper 1.21+ servers.
 
-[![Paper](https://img.shields.io/badge/Paper-1.21%2B-brightgreen)](https://papermc.io)
-[![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://adoptium.net)
+[![Paper](https://img.shields.io/badge/Paper-1.21.1%2B-brightgreen)](https://papermc.io)
+[![Java](https://img.shields.io/badge/Java-21%2B-blue)](https://adoptium.net)
 [![Vault](https://img.shields.io/badge/Requires-Vault-orange)](https://www.spigotmc.org/resources/vault.34315/)
 
 ---
@@ -27,7 +27,7 @@
 
 | Dependency | Version |
 |---|---|
-| [Paper](https://papermc.io) | 1.21+ |
+| [Paper](https://papermc.io) | 1.21.1+ |
 | Java | 17+ |
 | [Vault](https://www.spigotmc.org/resources/vault.34315/) | Any |
 | Economy plugin | Any Vault-compatible plugin |

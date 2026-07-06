@@ -20,6 +20,7 @@ import com.skyblockexp.eztax.storage.TaxHistoryModel;
 import com.skyblockexp.eztax.storage.TrackedPlayerModel;
 import com.skyblockexp.eztax.storage.StatsModel;
 import com.skyblockexp.eztax.config.TaxConfig;
+import com.github.ezframework.jaloquent.config.JaloquentConfig;
 
 public class StatsComponent implements Component {
     private final EzTaxPlugin plugin;
@@ -35,13 +36,8 @@ public class StatsComponent implements Component {
 
     @Override
     public void start() {
-        // Suppress verbose INFO logs from Jaloquent internals.
-        // JUL suppression covers Paper servers (SLF4J → JUL bridge).
-        // Logback suppression (reflective, best-effort) covers test environments.
-        suppressJaloquentLogger("com.skyblockexp.eztax.libs.jaloquent.model.ModelRepository");
-        suppressJaloquentLogger("com.skyblockexp.eztax.libs.jaloquent.model.Model");
-        suppressJaloquentLogger("com.github.ezframework.jaloquent.model.ModelRepository");
-        suppressJaloquentLogger("com.github.ezframework.jaloquent.model.Model");
+        // Suppress verbose INFO logs from Jaloquent internals using Jaloquent's own API.
+        JaloquentConfig.enableLogging(false);
 
         String storage = taxConfig.getStorageType();
         java.io.File statsFile = new java.io.File(plugin.getDataFolder(), taxConfig.getStorageFile());
@@ -117,18 +113,6 @@ public class StatsComponent implements Component {
     @Override
     public void reload() {
         // nothing
-    }
-
-    private void suppressJaloquentLogger(String name) {
-        // JUL — used on Paper via SLF4J-JUL bridge
-        java.util.logging.Logger.getLogger(name).setLevel(java.util.logging.Level.WARNING);
-        // Logback — present on test classpath; use reflection to avoid hard runtime dependency
-        try {
-            Object logger = org.slf4j.LoggerFactory.getLogger(name);
-            if (logger instanceof ch.qos.logback.classic.Logger) {
-                ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.WARN);
-            }
-        } catch (Throwable ignored) { }
     }
 
     public StatsService getStatsService() { return statsService; }

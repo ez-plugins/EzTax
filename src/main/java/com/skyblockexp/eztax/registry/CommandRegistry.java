@@ -1,7 +1,6 @@
 package com.skyblockexp.eztax.registry;
 
 import com.skyblockexp.eztax.EzTaxPlugin;
-import com.skyblockexp.eztax.command.execute.EzTaxExecute;
 import com.skyblockexp.eztax.command.execute.TransactionTaxExecute;
 import com.skyblockexp.eztax.command.execute.ExemptExecute;
 import com.skyblockexp.eztax.config.TaxConfig;
@@ -36,8 +35,8 @@ public class CommandRegistry {
     }
 
     public void registerCommands() {
-        // Register main dispatcher (alias 'tax' configured in plugin.yml)
-        register("eztax", new EzTaxExecute(plugin, taxConfig, statsService, taxEngine, vaultHook, messages, exemptionService, null, null));
+        // Note: the main /eztax command is registered with its full executor in CommandComponent.
+        // This registry handles only the standalone convenience commands below.
 
         // Keep core top-level commands for convenience (wrap Subcommands into CommandExecutors)
         register("exempt", new com.skyblockexp.eztax.command.CmdExecutor() {

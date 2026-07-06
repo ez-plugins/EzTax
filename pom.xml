@@ -5,16 +5,17 @@
 
     <groupId>com.skyblockexp</groupId>
     <artifactId>eztax</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <name>EzTax</name>
     <description>Economy taxation and inflation control plugin using Vault.</description>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <paper.version>[26.1.2.build,)</paper.version>
-        <mockbukkit.version>dev-d245e0a</mockbukkit.version>
+        <paper.version>1.21.11-R0.1-SNAPSHOT</paper.version>
+        <mockbukkit.version>4.110.0</mockbukkit.version>
     </properties>
 
     <repositories>
@@ -51,6 +52,12 @@
             <version>1.7.1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- All net.kyori Adventure modules are shaded and relocated to
+             com.skyblockexp.eztax.libs.net.kyori so the plugin works on both Paper and Spigot.
+             Spigot 1.21+ does not expose adventure-api to plugin classloaders, causing
+             NoClassDefFoundError when any Adventure type is verified in plugin bytecode.
+             We convert all Components to legacy Strings before every server API call, so
+             there is no type-boundary conflict with Paper's bundled Adventure. -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
@@ -91,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockbukkit.mockbukkit</groupId>
-            <artifactId>mockbukkit-v26.1</artifactId>
+            <artifactId>mockbukkit-v1.21</artifactId>
             <version>${mockbukkit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -99,7 +106,7 @@
         <dependency>
             <groupId>com.github.EzFramework</groupId>
             <artifactId>jaloquent</artifactId>
-            <version>1.1.0</version>
+            <version>1.3.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- EzSeasons API — optional season-reset integration -->
@@ -129,7 +136,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.13.0</version>
+                <configuration>
+                    <fork>true</fork>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -212,6 +222,10 @@
                                 <relocation>
                                     <pattern>io.prometheus</pattern>
                                     <shadedPattern>com.skyblockexp.eztax.libs.io.prometheus</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.kyori</pattern>
+                                    <shadedPattern>com.skyblockexp.eztax.libs.net.kyori</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
